@@ -1,22 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trust Bazaar</title>
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-</head>
-<body style="text-align: center; font-family: sans-serif; padding: 50px;">
-    <h1>Trust Bazaar 10/10</h1>
-    <p>If you see this, the website is working!</p>
-    <button id="auth_btn" style="padding: 15px; background: #673ab7; color: white; border: none; border-radius: 8px;">Login to Pi</button>
-    <script>
+<script>
+    // 1. Wait for the SDK to load
+    window.onload = function() {
+        const Pi = window.Pi;
         Pi.init({ version: "2.0" });
+
         document.getElementById('auth_btn').onclick = function() {
-            Pi.authenticate(['username'], function(p){}).then(function(auth){
-                alert("Hello " + auth.user.username);
+            console.log("Login button clicked...");
+            
+            // 2. Start Authentication
+            Pi.authenticate(['username', 'payments'], function(payment) {
+                // This part handles payments later
+            }).then(function(auth) {
+                alert("Success! Welcome " + auth.user.username);
+                document.body.innerHTML = "<h1>Welcome " + auth.user.username + "</h1>";
+            }).catch(function(error) {
+                console.error(error);
+                alert("Login failed: " + error.message);
             });
         };
-    </script>
-</body>
-</html>
+    };
+</script>
