@@ -106,31 +106,25 @@
         };
 
         function login() {
-            log("🚀 Wallet Connection Requested...");
+            log("🚀 Requesting Auth...");
 
-            // 1. Force a small vibration (S23 feedback)
-            if (window.navigator.vibrate) window.navigator.vibrate(50);
-
-            // 2. The Auth Call
+            // This tells the SDK to look for both the user and potential payments
             Pi.authenticate(['username', 'payments'], function (payment) {
-                log("🔍 Background check for payments...");
+                log("Checking for incomplete payments...");
             }).then(function (auth) {
-                log("✅ WALLET CONNECTED!");
-                log("👋 Hello, " + auth.user.username);
+                log("✅ CONNECTED: " + auth.user.username);
 
-                // Update the UI
+                // Update the UI on BOTH S23 and PC Sandbox
                 document.getElementById('user-name').innerText = auth.user.username;
                 document.getElementById('user-name').style.color = "#4caf50";
 
-                // Success animation
-                if (window.navigator.vibrate) window.navigator.vibrate([100, 50, 100]);
+                // This is the 'Handshake' signal for the Sandbox
+                if (window.parent) {
+                    window.parent.postMessage({ type: 'auth_success', username: auth.user.username }, "*");
+                }
 
             }).catch(function (err) {
-                log("❌ WALLET ERROR: " + err.message);
-                // This is where we see the REAL reason the S23 is blocking you
-                if (err.message.includes("cancelled")) {
-                    log("💡 Tip: Don't close the popup too fast.");
-                }
+                log("❌ AUTH ERROR: " + err.message);
             });
         }
     </script>
