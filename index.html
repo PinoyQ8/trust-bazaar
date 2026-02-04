@@ -1,79 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-Ray Debugger</title>
-    
-    <script>
-        window.onerror = function(msg, url, line) {
-            document.getElementById('console').innerHTML += 
-                "<div style='color:red; border-bottom:1px solid #ccc;'>🔥 ERROR: " + msg + "<br>Line: " + line + "</div>";
-        };
+<script>
+    // 1. Initialize
+    log("System: Initializing Pi SDK...");
+    Pi.init({ version: "2.0" });
+
+    // 2. The Login Function
+    async function tryLogin() {
+        log("👉 Button Clicked. Waiting 1 second for SDK safety...");
         
-        function log(msg) {
-            document.getElementById('console').innerHTML += 
-                "<div style='color:green; border-bottom:1px solid #ccc;'>ℹ️ " + msg + "</div>";
-        }
-    </script>
-
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    
-    <style>
-        body { font-family: monospace; padding: 15px; background: #fff; }
-        #console { background: #eee; border: 2px solid #333; padding: 10px; margin-top: 20px; min-height: 200px; word-wrap: break-word; }
-        button { width: 100%; padding: 20px; font-size: 20px; background: orange; border: none; font-weight: bold; margin-bottom: 20px; }
-        .box { border: 2px solid blue; padding: 10px; margin-bottom: 10px; color: blue; }
-    </style>
-</head>
-<body>
-
-    <h1>📱 X-Ray Mode</h1>
-
-    <p>Copy the text in this blue box EXACTLY into your Portal:</p>
-    <div id="url-box" class="box">Loading URL...</div>
-
-    <button id="btn-login">TAP TO LOGIN</button>
-
-    <h3>System Logs:</h3>
-    <div id="console">Waiting for activity...</div>
-
-    <script>
-        // 1. PRINT THE EXACT URL
-        const currentUrl = window.location.href;
-        document.getElementById('url-box').innerText = currentUrl;
-        log("Page Loaded: " + currentUrl);
-
-        // 2. CHECK SDK
-        if(typeof Pi === 'undefined') {
-            log("❌ FATAL: Pi SDK failed to load. Check Internet/DNS.");
-        } else {
-            log("✅ Pi SDK Library found.");
-        }
-
-        // 3. INIT (No Sandbox Flag)
-        try {
-            Pi.init({ version: "2.0" });
-            log("✅ Pi.init() Success.");
-        } catch(e) {
-            log("❌ Pi.init() Failed: " + e.message);
-        }
-
-        // 4. LOGIN BUTTON
-        document.getElementById('btn-login').onclick = function() {
-            log("👉 Login Button Clicked.");
-            log("Attempting Pi.authenticate...");
+        // Small delay to ensure the bridge between GitHub and Pi Browser is solid
+        setTimeout(async () => {
+            log("🚀 Calling Pi.authenticate now...");
             
-            Pi.authenticate(['username', 'payments'], {
-                onIncompletePaymentFound: function(p) { log("Incomplete Payment: " + p.identifier); }
-            }).then(function(auth) {
-                log("🎉 SUCCESS! User: " + auth.user.username);
-                alert("It worked! " + auth.user.username);
-            }).catch(function(err) {
-                log("🛑 AUTH FAILED: " + err);
+            try {
+                const auth = await Pi.authenticate(['username', 'payments'], function(payment) {
+                    log("Payment Check: " + payment.identifier);
+                    return true;
+                });
+                
+                log("✅ LOGIN SUCCESS! Welcome " + auth.user.username);
+                alert("Authenticated as " + auth.user.username);
+                
+            } catch (err) {
+                // If it fails, it MUST show an error here. 
+                // If nothing shows, the Pi Browser is blocking the request entirely.
+                log("🛑 AUTH FAILED: " + JSON.stringify(err));
                 alert("Error: " + err);
-            });
-        };
-    </script>
-</body>
-</html>
+            }
+        }, 1000);
+    }
+
+    document.getElementById('btn-login').onclick = tryLogin;
+</script>
