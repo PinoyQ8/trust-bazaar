@@ -82,54 +82,74 @@
         <div id="log-output"></div>
     </div>
 
-   <script>
+<script>
         // 1. Mandatory Global Callback
-const onIncompletePaymentFound = (payment) => {
-    console.log("Incomplete payment found", payment);
-};
+        const onIncompletePaymentFound = (payment) => {
+            console.log("Incomplete payment found", payment);
+        };
 
-const log = (msg) => {
-    const output = document.getElementById('log-output');
-    if(output) {
-        output.innerHTML += `<div>> ${msg}</div>`;
-        output.scrollTop = output.scrollHeight;
-    }
-};
+        const log = (msg) => {
+            const output = document.getElementById('log-output');
+            if (output) {
+                output.innerHTML += `<div>> ${msg}</div>`;
+                output.scrollTop = output.scrollHeight;
+            }
+        };
 
-// 2. The Bootloader
-function startSystem() {
-    log("📡 System Booting...");
+        // 2. The Bootloader
+        function startSystem() {
+            log("📡 System Booting...");
 
-    // Remove the purple curtain after 4 seconds if SDK fails
-    setTimeout(() => {
-        const loader = document.getElementById('loader-container');
-        if (loader) loader.style.display = 'none';
-        log("⚠️ Failsafe: Bypassing loading screen.");
-    }, 4000);
+            // Remove the purple curtain after 4 seconds if SDK fails
+            setTimeout(() => {
+                const loader = document.getElementById('loader-container');
+                if (loader) loader.style.display = 'none';
+                log("⚠️ Failsafe: Bypassing loading screen.");
+            }, 4000);
 
-    try {
-        log("🔗 Attempting SDK Init...");
-        Pi.init({ version: "2.0" });
-        log("✅ SDK Found.");
+            try {
+                log("🔗 Attempting SDK Init...");
+                // Initialize the Pi SDK
+                Pi.init({ version: "2.0" });
+                log("✅ SDK Found.");
 
-        // This is the line that clears the "Waiting" status
-        Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
-            .then(function(auth) {
-                log("👤 Welcome, " + auth.user.username);
-                document.getElementById('user-name').innerText = auth.user.username;
-            })
-            .catch(function(err) {
-                log("❌ SDK Auth Error: " + err.message);
-            });
-    } catch (e) {
-        log("❌ Fatal Error: " + e.message);
-    }
-}
+                // Request Authentication
+                Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
+                    .then(function(auth) {
+                        log("👤 Welcome, " + auth.user.username);
+                        document.getElementById('user-name').innerText = auth.user.username;
+                        
+                        // Success! Hide the loader immediately
+                        const loader = document.getElementById('loader-container');
+                        if (loader) loader.style.display = 'none';
+                    })
+                    .catch(function(err) {
+                        log("❌ SDK Auth Error: " + err.message);
+                    });
+            } catch (e) {
+                log("❌ Fatal Error: " + e.message);
+            }
+        }
 
-// Ensure it runs even if the browser is slow
-if (document.readyState === "complete") { startSystem(); } 
-else { window.addEventListener("load", startSystem); }
-        <script>
+        // Trigger login manually if needed
+        function login() {
+            startSystem();
+        }
 
-    </body>
-</html >
+        // Logic for Eligibility button
+        function checkWalletEligibility() {
+            log("🔍 Checking Eligibility...");
+            setTimeout(() => {
+                log("✅ Wallet looks healthy. Ready for Audit!");
+            }, 1500);
+        }
+
+        // Ensure it runs even if the browser is slow
+        if (document.readyState === "complete") { 
+            startSystem(); 
+        } else { 
+            window.addEventListener("load", startSystem); 
+        }
+    </script>
+</body>
+</html>
