@@ -92,39 +92,48 @@
         window.onload = function () {
             log("📡 API Handshake Starting...");
 
-            // 1. FAILSAFE: Remove the curtain after 5 seconds
+            // 1. FAILSAFE: Remove the curtain after 6 seconds if SDK hangs
             setTimeout(() => {
                 const loader = document.getElementById('loader-container');
                 if (loader && loader.style.display !== 'none') {
                     loader.style.display = 'none';
-                    log("⚠️ SDK bypass triggered.");
+                    log("⚠️ SDK took too long. Forced entry.");
                 }
-            }, 5000);
+            }, 6000);
 
-            // 2. Mandatory Callback for API Payments
+            // 2. MANDATORY: The 'Incomplete Payment' Callback
+            // Without this, Pi.init will hang forever!
             const onIncompletePaymentFound = (payment) => {
-                log("🔍 API: Found incomplete transaction: " + payment.identifier);
-                // This line tells the Pi Servers you are handling the payment
+                log("🔍 API: Found stuck transaction: " + payment.identifier);
+                // This is where your API Key works behind the scenes
             };
 
             try {
-                // Initialize the SDK
-                Pi.init({ version: "2.0" });
-                log("✅ SDK Initialized.");
+                log("🔗 Initializing Pi SDK...");
 
-                // IMPORTANT: Authenticate immediately with 'payments' scope
-                // This is what activates your API Key on the S23
+                // Start the SDK
+                Pi.init({ version: "2.0" });
+                log("✅ SDK Signal Received.");
+
+                // 3. IMMEDIATE AUTH: This "wakes up" the Sandbox and S23
                 Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
                     .then(function (auth) {
-                        log("👤 API Verified: " + auth.user.username);
+                        log("👤 Welcome, " + auth.user.username);
                         document.getElementById('user-name').innerText = auth.user.username;
+
+                        // Hide loader once authenticated
+                        const loader = document.getElementById('loader-container');
+                        if (loader) loader.style.display = 'none';
                     })
                     .catch(function (err) {
                         log("❌ API Auth Error: " + err.message);
+                        // Even if auth fails, we hide the loader to see the error
+                        document.getElementById('loader-container').style.display = 'none';
                     });
 
             } catch (e) {
                 log("❌ SDK Fatal Error: " + e.message);
+                document.getElementById('loader-container').style.display = 'none';
             }
         };
             }
