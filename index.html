@@ -43,34 +43,47 @@
     </button>
 
     <script>
-    // 1. DEFINE the function here (The Tool)
+    // The curtain lifter
     function hideLoader() {
         const loader = document.getElementById('loader-container');
-        if (loader) {
+        if(loader) {
             loader.style.opacity = '0';
-            setTimeout(() => {
-                loader.style.display = 'none';
-            }, 500); // Matches the 0.5s transition in your CSS
+            setTimeout(() => loader.style.display = 'none', 500);
         }
     }
 
-    // 2. USE the function here (The Action)
     window.onload = function() {
-        Pi.init({ version: "2.0" });
+        const status = document.getElementById('status-msg');
 
-        Pi.authenticate(['username'], function(p){})
-            .then(function(auth) {
-                // The curtain stays down until this line runs!
-                hideLoader(); 
-                console.log("Welcome " + auth.user.username);
-            })
-            .catch(function(err) {
-                // If login fails, we still hide it so they can see the error/retry button
-                hideLoader();
-                console.error(err);
-            });
+        // Set a 5-second "Rescue Timer"
+        const rescueTimer = setTimeout(() => {
+            status.innerText = "Connection taking too long. Tap to force start.";
+            hideLoader(); 
+        }, 5000);
+
+        try {
+            // Force the SDK to wake up
+            Pi.init({ version: "2.0" });
+            
+            Pi.authenticate(['username'], function(p){})
+                .then(function(auth) {
+                    clearTimeout(rescueTimer); // Stop the timer on success
+                    status.innerText = "Connected!";
+                    hideLoader();
+                    console.log("Welcome " + auth.user.username);
+                })
+                .catch(function(err) {
+                    clearTimeout(rescueTimer);
+                    status.innerText = "Auth Error: " + err.message;
+                    hideLoader();
+                });
+        } catch (err) {
+            status.innerText = "Init Error: " + err.message;
+            hideLoader();
+        }
     };
 </script>
 </body>
 </html>
+
 
