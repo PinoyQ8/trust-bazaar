@@ -1,28 +1,30 @@
 async function payForScore() {
     try {
         const payment = await Pi.createPayment({
-            // The amount of Pi for the trust score
-            amount: 1.0, 
-            // A short memo the user sees in their wallet
-            memo: "Trust Bazaar: Unlock My Trust Score", 
-            // This is a unique ID for your records
-            metadata: { scoreType: "full_report" }, 
+            amount: 1.0,
+            memo: "Trust Bazaar: Unlock My Trust Score",
+            metadata: { scoreType: "full_report" },
         }, {
-            // This runs when the user hits "Confirm" in their wallet
+            // STEP 1: Server Approval
             onReadyForServerApproval: function(paymentId) {
-                log("Payment Pending... ID: " + paymentId);
-                // For Testnet, we tell Pi to "auto-complete" the transaction
-                // In a real app, your server would verify this.
-                axios.post('https://api.minepi.com/v2/payments/' + paymentId + '/complete');
+                console.log("Payment ID created:", paymentId);
+                // ⚠️ NOTE: In a real app, you send this ID to YOUR server.
+                // YOUR server then calls Pi API to approve it.
+                log("Please approve payment in your wallet...");
             },
+            // STEP 2: Blockchain Completion
             onReadyForServerCompletion: function(paymentId, txid) {
-                log("✅ Payment Successful! TXID: " + txid);
-                showTrustScore(); // Your function to show the 85% score
+                console.log("User paid! Transaction ID:", txid);
+                log("✅ Success! Score Unlocking...");
+                
+                // For testing, we can trigger the UI update immediately
+                showTrustScore(); 
             },
             onCancel: function(paymentId) { log("Payment Cancelled."); },
-            onError: function(error, payment) { log("Payment Error: " + error.message); }
+            onError: function(error, payment) { log("Error: " + error.message); }
         });
     } catch (err) {
-        log("Payment failed to start: " + err.message);
+        log("Payment failed: " + err.message);
     }
 }
+
