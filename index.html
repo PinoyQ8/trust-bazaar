@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trust Bazaar (Dev Mode)</title>
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+    <script src="https://unpkg.com/@stellar/stellar-sdk@12.3.0/dist/stellar-sdk.min.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; background: #f4f4f9; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+        h1 { color: #333; }
+        #scoreDisplay { font-size: 80px; color: #673ab7; font-weight: bold; display: block; margin: 10px 0; }
+        
+        button { width: 100%; padding: 15px; margin-top: 10px; border-radius: 8px; border: none; cursor: pointer; color: white; font-weight: bold; font-size: 16px; }
+        .btn-pi { background-color: #fca900; color: #333; }
+        .btn-dev { background-color: #2196F3; } /* Blue for Dev Mode */
+        
+        input { width: 90%; padding: 10px; margin-top: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        #status { margin-top: 20px; font-size: 14px; color: #555; word-break: break-word; }
+        .dev-badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #666; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Trust Bazaar <span class="dev-badge">DEV MODE</span></h1>
+        
+        <p>User: <span id="userDisplay">Guest</span></p>
+        <button id="loginBtn" class="btn-pi">⚡ Login with Pi</button>
+
+        <hr>
+
+        <h3>Reputation Score</h3>
+        <span id="scoreDisplay">--</span>
+        
+        <div id="actionArea" style="display:none;">
+            <input type="password" id="secretKeyInput" placeholder="Paste S-Key for Blockchain Update">
+            
+            <button id="realPayBtn" class="btn-pi" style="display:none;">💸 Pay 1 Pi (Real)</button>
+            
+            <button id="bypassBtn" class="btn-dev" onclick="simulatePaymentSuccess()">🛠️ DEV: Simulate Payment</button>
+            <p style="font-size:11px; color: #2196F3;">(Bypasses Pi UI to test Blockchain)</p>
+        </div>
+
+        <button id="checkBtn" class="btn-check" style="background:#673ab7; margin-top:20px;" onclick="getScore()" disabled>🔄 Check Score</button>
+        <p id="status">Waiting for login...</p>
+    </div>
+
+    <script>
+        // ==========================================
+        const CONTRACT_ID = "CCK4HEDTBZ365BLDA5TN5FZWQ7QGO2PZRRW5MBJUPUW6VEQG4IN2K3Y6"; 
+        // ==========================================
+
+        const RPC_URL = "https://soroban-testnet.stellar.org";
+        const statusEl = document.getElementById('status');
+        
+        // 1. Init Pi (We still need this for Login)
+        try { Pi.init({ version: "2.0", sandbox: true }); } catch(e) { console.log(e); }
+
+        // 2. Login
+        document.getElementById('loginBtn').onclick = async () => {
+            try {
+                const auth = await Pi.authenticate(['username', 'payments'], { onIncompletePaymentFound: (p) => {} });
+                document.getElementById('userDisplay').innerText = "@" + auth.user.username;
+                document.getElementById('loginBtn').style.display = "none";
+                document.getElementById('actionArea').style.display = "block";
+                document.getElementById('checkBtn').disabled = false;
+                statusEl.innerText = "✅ Logged in!";
+                getScore(); 
+            } catch (err) { statusEl.innerText = "Login Error: " + err; }
+        };
+
+        // 3. THE BYPASS FUNCTION
+        // This function simulates what the Pi SDK *would* have done if it worked.
+        function simulatePaymentSuccess() {
+            const secretKey = document.getElementById('secretKeyInput').value.trim();
+            if (!secretKey) { alert("Paste S-Key first!"); return; }
+
+            statusEl.innerText = "🛠️ Simulation: Payment 'Approved'. contacting Blockchain...";
+            statusEl.style.color = "blue";
+
+            // CALL THE BLOCKCHAIN DIRECTLY
+            sendHeartbeat(secretKey);
+        }
+
+        // 4. Stellar Blockchain Logic
+        async function sendHeartbeat(secretKey) {
+            try {
+                const rpc = new StellarSdk.rpc.Server(RPC_URL);
+                const keypair = StellarSdk.Keypair.fromSecret(secretKey);
+                const source = await rpc.getAccount(keypair.publicKey());
+                const contract = new StellarSdk.Contract(CONTRACT_ID);
+
+                statusEl.innerText = "⏳ Building Transaction...";
+
+                let tx = new StellarSdk.TransactionBuilder(source, {
+                    fee: StellarSdk.BASE_FEE, networkPassphrase: "Test SDF Network ; September 2015"
+                })
+                .addOperation(contract.call("heartbeat", StellarSdk.nativeToScVal(keypair.publicKey(), {type: 'address'})))
+                .setTimeout(30).build();
+
+                // Simulate
+                const sim = await rpc.simulateTransaction(tx);
+                if (!StellarSdk.rpc.Api.isSimulationSuccess(sim)) throw new Error("Simulation Failed");
+
+                // Sign & Send
+                tx = StellarSdk.rpc.assembleTransaction(tx, sim).build();
+                tx.sign(keypair);
+                
+                statusEl.innerText = "✍️ Signing & Sending...";
+                
+                const result = await rpc.sendTransaction(tx);
+                if(result.status === "ERROR") throw new Error("TX Failed");
+
+                statusEl.innerText = "✅ SUCCESS! Blockchain Updated.";
+                statusEl.style.color = "green";
+                
+                // Refresh score
+                setTimeout(getScore, 3000);
+
+            } catch (err) {
+                console.error(err);
+                statusEl.innerText = "❌ Blockchain Error: " + err.message;
+                statusEl.style.color = "red";
+            }
+        }
+
+        // 5. Check Score
+        async function getScore() {
+            const secretKey = document.getElementById('secretKeyInput').value.trim();
+            if(!secretKey) return;
+            try {
+                const keypair = StellarSdk.Keypair.fromSecret(secretKey);
+                const rpc = new StellarSdk.rpc.Server(RPC_URL);
+                const contract = new StellarSdk.Contract(CONTRACT_ID);
+                const op = contract.call("get_score", StellarSdk.nativeToScVal(keypair.publicKey(), {type: 'address'}));
+                const res = await rpc.simulateTransaction(new StellarSdk.TransactionBuilder(
+                    new StellarSdk.Account(keypair.publicKey(), "0"), { fee: "100", networkPassphrase: "Test SDF Network ; September 2015" }
+                ).addOperation(op).setTimeout(30).build());
+                
+                if (StellarSdk.rpc.Api.isSimulationSuccess(res)) {
+                    document.getElementById('scoreDisplay').innerText = StellarSdk.scValToNative(res.result.retval);
+                }
+            } catch(e) { console.log(e); }
+        }
+    </script>
+</body>
+</html>
