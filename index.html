@@ -1,22 +1,47 @@
-<script>
-    // 1. Wait for the SDK to load
-    window.onload = function() {
-        const Pi = window.Pi;
-        Pi.init({ version: "2.0" });
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+</head>
+<body style="background-color: #673ab7; color: white; text-align: center; font-family: sans-serif; margin: 0; padding-top: 50px;">
+    
+    <div id="loading-screen">
+        <h1>Trust Bazaar</h1>
+        <p id="status-text">Connecting to Pi Network...</p>
+    </div>
 
-        document.getElementById('auth_btn').onclick = function() {
-            console.log("Login button clicked...");
-            
-            // 2. Start Authentication
-            Pi.authenticate(['username', 'payments'], function(payment) {
-                // This part handles payments later
-            }).then(function(auth) {
-                alert("Success! Welcome " + auth.user.username);
-                document.body.innerHTML = "<h1>Welcome " + auth.user.username + "</h1>";
-            }).catch(function(error) {
-                console.error(error);
-                alert("Login failed: " + error.message);
-            });
+    <button id="login-btn" style="display:none; padding: 20px 40px; font-size: 20px; border-radius: 50px; border: none; background: white; color: #673ab7; font-weight: bold;">
+        LOGIN TO PI
+    </button>
+
+    <script>
+        window.onload = function() {
+            const status = document.getElementById('status-text');
+            const btn = document.getElementById('login-btn');
+
+            try {
+                // Initialize the SDK
+                Pi.init({ version: "2.0" });
+                status.innerText = "SDK Ready!";
+                btn.style.display = "inline-block";
+            } catch (err) {
+                status.innerText = "SDK Error: " + err.message;
+                console.error(err);
+            }
+
+            btn.onclick = function() {
+                Pi.authenticate(['username', 'payments'], function(payment) {
+                    console.log("Payment flow initialized");
+                }).then(function(auth) {
+                    status.innerText = "Welcome, " + auth.user.username;
+                    btn.style.display = "none";
+                }).catch(function(e) {
+                    alert("Auth failed: " + e.message);
+                });
+            };
         };
-    };
-</script>
+    </script>
+</body>
+</html>
