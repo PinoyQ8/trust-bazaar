@@ -1,109 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Trust Bazaar Audit</title>
+    <title>Trust Bazaar Reset</title>
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        :root { --pi-purple: #673ab7; }
-        body { font-family: sans-serif; background: #f4f7f6; margin: 0; text-align: center; }
-        
-        #loader-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--pi-purple); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999;
-            color: white;
-        }
-
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid #fff; 
-            border-top-color: transparent; border-radius: 50%; 
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .card { background: white; margin: 20px; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .btn-main { padding: 15px; width: 80%; background: var(--pi-purple); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
-        #log-output { background: #000; color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; height: 120px; overflow-y: auto; text-align: left; margin: 10px; border-radius: 5px; }
+        body { background: #673ab7; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; }
+        .box { background: white; color: black; margin: 20px; padding: 20px; border-radius: 10px; }
+        button { padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="loader-container">
-        <div class="spinner"></div>
-        <p>Connecting to Pinoy's App...</p>
+    <h1>Trust Bazaar Debug</h1>
+    <div class="box">
+        <p>Status: <span id="status">Loading Pi SDK...</span></p>
+        <button onclick="payPi()">Test 1 Pi Payment</button>
     </div>
-
-    <div class="card">
-        <h1 style="color: var(--pi-purple);">Trust Bazaar v1.2</h1>
-        <p>User: <span id="user-name" style="font-weight:bold;">Connecting...</span></p>
-        <button class="btn-main" onclick="requestTrustPayment()">Start Audit (1 Pi)</button>
-    </div>
-
-    <div id="log-output"><b>SYSTEM LOGS:</b></div>
+    <div id="logs" style="font-family: monospace; font-size: 10px; color: #ccc;"></div>
 
     <script>
-        // 1. Logs
-        const log = (msg) => {
-            const out = document.getElementById('log-output');
-            if(out) {
-                out.innerHTML += `<div>> ${msg}</div>`;
-                out.scrollTop = out.scrollHeight;
-            }
-        };
+        function log(m) { document.getElementById('logs').innerHTML += "<div>> " + m + "</div>"; }
 
-        // 2. Clear old payments
-        const onIncompletePaymentFound = (payment) => {
-            log("⚠️ Resolving old payment...");
-            Pi.payment.complete(payment.identifier);
-        };
-
-        // 3. System Boot
-        function startSystem() {
-            log("📡 Booting...");
+        window.onload = function() {
+            log("Window loaded.");
             try {
                 Pi.init({ version: "2.0" });
-                Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
-                .then(auth => {
-                    log("👤 Connected: " + auth.user.username);
-                    document.getElementById('user-name').innerText = auth.user.username;
-                    document.getElementById('loader-container').style.display = 'none';
-                })
-                .catch(err => {
-                    log("❌ Auth Error: " + err.message);
-                    document.getElementById('loader-container').style.display = 'none';
-                });
-            } catch (e) {
-                log("❌ Init Error: " + e.message);
+                log("SDK Init Success.");
+                Pi.authenticate(['username', 'payments'], function(p){ log("Incomplete found"); })
+                    .then(function(auth) {
+                        document.getElementById('status').innerText = "Connected as " + auth.user.username;
+                        log("Auth success: " + auth.user.username);
+                    })
+                    .catch(function(e) { log("Auth Error: " + e.message); });
+            } catch(err) {
+                log("Fatal: " + err.message);
             }
-        }
+        };
 
-        // 4. Payment Trigger
-        function requestTrustPayment() {
-            log("💎 Opening Wallet...");
-            try {
-                Pi.createPayment({
-                    amount: 1.0,
-                    memo: "Trust Audit Fee",
-                    metadata: { auditId: "L1" },
-                }, {
-                    onReadyForServerApproval: (id) => log("📡 Approved: " + id),
-                    onReadyForServerCompletion: (id, txid) => {
-                        log("✅ PAID! TX: " + txid.substring(0,5));
-                        alert("Audit Successful! Score: 88%");
-                    },
-                    onCancel: () => log("⚠️ Cancelled"),
-                    onError: (err) => log("❌ Error: " + err.message)
-                });
-            } catch (e) {
-                log("❌ Payment Logic Error: " + e.message);
-            }
+        function payPi() {
+            log("Attempting payment...");
+            Pi.createPayment({
+                amount: 1.0,
+                memo: "Test Audit",
+                metadata: { id: "123" }
+            }, {
+                onReadyForServerApproval: function(id) { log("Approved ID: " + id); },
+                onReadyForServerCompletion: function(id, tx) { alert("PAID! Score: 88%"); },
+                onCancel: function() { log("Cancelled"); },
+                onError: function(e) { log("Error: " + e.message); }
+            });
         }
-
-        // Start everything
-        window.onload = startSystem;
     </script>
 </body>
 </html>
