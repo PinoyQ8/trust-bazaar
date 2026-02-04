@@ -81,46 +81,41 @@
         <b>SYSTEM LOGS:</b>
         <div id="log-output"></div>
     </div>
-
     <script>
-        // 1. Define the mandatory callback FIRST (Global Scope)
+        // 1. MUST BE GLOBAL - The SDK looks for this immediately
         const onIncompletePaymentFound = (payment) => {
             console.log("Found incomplete payment", payment);
         };
 
-        // 2. The Main Bootstrapper
-        function bootPi() {
-            const logOutput = document.getElementById('log-output');
-            const log = (msg) => {
-                logOutput.innerHTML += `<div>> ${msg}</div>`;
-                logOutput.scrollTop = logOutput.scrollHeight;
-            };
+        // 2. LOGGING TOOL
+        const log = (msg) => {
+            const output = document.getElementById('log-output');
+            if (output) {
+                output.innerHTML += `<div>> ${msg}</div>`;
+                output.scrollTop = output.scrollHeight;
+            }
+        };
 
-            log("📡 Force-starting SDK...");
+        // 3. MAIN INITIALIZATION
+        window.onload = function () {
+            log("📡 System Booting...");
 
-            // FAILSAFE: Kill the spinner after 5 seconds no matter what
+            // Failsafe: Hide purple screen after 5 seconds
             setTimeout(() => {
                 const loader = document.getElementById('loader-container');
-                if (loader) {
-                    loader.style.display = 'none';
-                    log("⚠️ Failsafe: Loader bypassed.");
-                }
+                if (loader) loader.style.display = 'none';
+                log("⚠️ Failsafe Active.");
             }, 5000);
 
             try {
-                if (typeof Pi === 'undefined') {
-                    log("❌ ERROR: Pi SDK Script not found!");
-                    return;
-                }
-
-                // INITIALIZE
+                // Init SDK
                 Pi.init({ version: "2.0" });
-                log("✅ SDK Initialized.");
+                log("✅ SDK Signal Received.");
 
-                // AUTHENTICATE (This wakes up the Sandbox/S23)
+                // Authenticate - This is what shows 'Pinoy'
                 Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
                     .then(function (auth) {
-                        log("👤 Hello " + auth.user.username);
+                        log("👤 Verified: " + auth.user.username);
                         document.getElementById('user-name').innerText = auth.user.username;
                     })
                     .catch(function (err) {
@@ -128,50 +123,29 @@
                     });
 
             } catch (e) {
-                log("❌ Fatal: " + e.message);
+                log("❌ SDK Error: " + e.message);
             }
-        }
+        };
 
-        // 3. Ensure the script runs after everything is loaded
-        if (document.readyState === 'complete') {
-            bootPi();
-        } else {
-            window.addEventListener('load', bootPi);
-        }
+        // 4. THE 1 PI PAYMENT FUNCTION
         function requestTrustPayment() {
-            log("💎 Opening Pi Wallet...");
+            log("💎 Opening Wallet...");
 
             Pi.createPayment({
                 amount: 1.0,
-                memo: "Trust Protocol Level 1 Audit Fee",
-                metadata: { auditType: "L1_Security" },
+                memo: "Trust Protocol L1 Audit Fee",
+                metadata: { auditId: "TB-101" },
             }, {
-                onReadyForServerApproval: function (paymentId) {
-                    log("📡 Payment Created. ID: " + paymentId);
-                    // In Sandbox, this is often auto-approved.
+                onReadyForServerApproval: (id) => log("📡 Payment ID: " + id),
+                onReadyForServerCompletion: (id, txid) => {
+                    log("✅ PAID! TX: " + txid.substring(0, 10));
+                    startAudit(); // Triggers your 85% score animation
                 },
-                onReadyForServerCompletion: function (paymentId, txid) {
-                    log("✅ PAID! TXID: " + txid.substring(0, 10));
-                    // Trigger the audit animation now that they've paid
-                    startAudit();
-                    <div id="audit-box" class="card">
-                        <h3>Ready for Reputation Audit?</h3>
-                        <p>Fee: 1 Pi (Refundable Security Deposit)</p>
-
-                        <button class="btn btn-purple" onclick="requestTrustPayment()">
-                            Start Audit (1 Pi)
-                        </button>
-                    </div>
-                },
-                onCancel: function (paymentId) {
-                    log("⚠️ Payment Cancelled by user.");
-                },
-                onError: function (error, payment) {
-                    log("❌ Wallet Error: " + error.message);
-                }
+                onCancel: (id) => log("⚠️ Cancelled."),
+                onError: (err) => log("❌ Wallet Error: " + err.message),
             });
         }
-    </script>
-</body>
+        <script>
+        </body>
 
-</html>
+</html >
