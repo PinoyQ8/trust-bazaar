@@ -61,8 +61,8 @@
 
         // 3. PAY (With Unique ID to prevent hangs)
         function payPi() {
-            const uniqueID = "audit-" + Date.now(); // <--- THIS PREVENTS DUPLICATE HANGS
-            log("💎 Starting Payment: " + uniqueID);
+            const uniqueID = "audit-" + Date.now();
+            log("💎 Starting Payment...");
 
             Pi.createPayment({
                 amount: 1.0,
@@ -71,16 +71,51 @@
             }, {
                 onReadyForServerApproval: function(paymentId) {
                     log("📡 Payment ID: " + paymentId);
-                    log("⏳ WAITING FOR PC APPROVAL...");
-                    log("👉 Check your PC Screen now!");
+                    log("⏳ Waiting for Server Approval...");
+                    
+                    // --- SIMULATION MODE START ---
+                    // Since we don't have a backend server on GitHub Pages,
+                    // we simulate the success after 4 seconds so you can see the app work.
+                    log("⚠️ GitHub Pages Mode: Simulating approval in 4s...");
+                    setTimeout(() => {
+                        log("✅ Simulation: Payment Approved!");
+                        // Close the wallet popup (optional, user might have to close it manually)
+                        // Trigger the success animation
+                        onPaymentSuccess("SIMULATED-TXID-888");
+                    }, 4000);
+                    // --- SIMULATION MODE END ---
                 },
                 onReadyForServerCompletion: function(paymentId, txid) {
-                    log("✅ SUCCESS! TX: " + txid.substring(0,5));
-                    alert("Audit Complete! Score: 88%");
+                    onPaymentSuccess(txid);
                 },
                 onCancel: function() { log("⚠️ Cancelled."); },
                 onError: function(e) { log("❌ Error: " + e.message); }
             });
+        }
+
+        // The Success Trigger
+        function onPaymentSuccess(txid) {
+            log("✅ SUCCESS! TX: " + txid.substring(0,8));
+            
+            // 1. Hide the Payment UI
+            document.querySelector('.box').style.display = 'none';
+            
+            // 2. Create the Success Certificate
+            const body = document.body;
+            const cert = document.createElement('div');
+            cert.style = "background:white; padding:20px; border-radius:15px; border: 4px solid #4CAF50; animation: pop 0.5s ease;";
+            cert.innerHTML = `
+                <h1 style="color:#4CAF50; font-size:40px;">88%</h1>
+                <h2>TRUST VERIFIED</h2>
+                <p>User: <b>Pinoy</b></p>
+                <p>TX: ${txid}</p>
+                <button onclick="location.reload()" style="padding:10px; background:#673ab7; color:white; border:none; border-radius:5px;">Finish</button>
+            `;
+            body.appendChild(cert);
+            
+            // 3. S23 Haptic Vibrate
+            if(navigator.vibrate) navigator.vibrate([100,50,100]);
+        
         }
     </script>
 </body>
