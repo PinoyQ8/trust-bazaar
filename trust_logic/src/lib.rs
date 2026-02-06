@@ -72,3 +72,6 @@ impl TrustContract {
         profile.score
     }
 }
+
+#[cfg(test)]
+mod test;
