@@ -109,6 +109,11 @@
             cursor: pointer;
             font-size: 1rem;
             margin-top: 10px;
+            transition: all 0.3s ease; /* Added for smooth transitions */
+        }
+        .btn:hover {
+            box-shadow: 0 0 20px var(--gold); /* Gold glow on hover */
+            transform: translateY(-2px); /* Slight lift effect */
         }
         .btn:disabled { background: #444; color: #888; cursor: not-allowed; }
         .btn-outline { background: transparent; border: 2px solid var(--gold); color: var(--gold); }

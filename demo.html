@@ -169,3 +169,265 @@
             bottom: -100px;
             left: 50%;
             transform: translateX(-50%);
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 10000;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            font-weight: bold;
+            border: 2px solid #fff;
+            min-width: 250px;
+        }
+        .bounty-toast.show { bottom: 50px; }
+        .badge-float { font-size: 1.5rem; display: block; margin-bottom: 5px; }
+
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-grid">
+        <div class="card" style="text-align: center;">
+            <h3>🛡️ MERCHANT IDENTITY</h3>
+            
+            <div class="trust-circle" id="trust-gauge">
+                <div class="trust-inner">
+                    <span class="score-big" id="ts-display">0%</span>
+                    <span class="score-label">TRUST SCORE</span>
+                </div>
+            </div>
+
+            <div class="tier-badge" id="tier-name">ITERANT</div>
+            
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Next Tier: Proven</span>
+                    <span id="next-tier-points">30 Pts Left</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="ts-bar" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>🏦 ECONOMIC STATUS</h3>
+            
+            <div class="status-row">
+                <span>Integrity Bond (20 Pi)</span>
+                <div>
+                    <span class="status-dot dot-red" id="bond-dot"></span>
+                    <span id="bond-text">NOT STAKED</span>
+                </div>
+            </div>
+
+            <div class="status-row">
+                <span>Medical Guard</span>
+                <div>
+                    <span class="status-dot dot-green"></span>
+                    <span>ACTIVE</span>
+                </div>
+            </div>
+
+            <div class="status-row">
+                <span>Market Mode</span>
+                <span style="color: var(--gold); font-weight: bold;">ASSET (LABOR PEG)</span>
+            </div>
+
+            <button class="btn" id="stake-btn" onclick="stakeBond()">🔒 STAKE 20 PI BOND</button>
+        </div>
+
+        <div class="card">
+            <h3>⚡ QUICK ACTIONS</h3>
+            <button class="btn btn-outline" onclick="simulateTrade()">🛒 SIMULATE TRADE (+2% TS)</button>
+            <button class="btn btn-outline" style="margin-top:10px; border-color: var(--red); color: var(--red);" onclick="triggerEmergency()">🚑 REPORT EMERGENCY</button>
+        </div>
+    </div>
+
+    <div id="custom-modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <h3 id="modal-title" style="margin-top:0; color: var(--gold);">⚠️ CONFIRMATION</h3>
+            <p id="modal-message" style="font-size: 1.1rem; margin: 20px 0;">Message goes here...</p>
+            
+            <div id="modal-actions">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 🧠 DASHBOARD LOGIC ENGINE ---
+
+        let merchantState = {
+            trustScore: 15, // Starting Score
+            isBonded: false,
+            tier: "ITERANT"
+        };
+
+        function updateUI() {
+            // 1. Update Gauge Visual
+            const angle = merchantState.trustScore * 3.6; // 360 deg / 100
+            document.getElementById('trust-gauge').style.background = 
+                `conic-gradient(var(--gold) ${angle}deg, #333 0deg)`;
+            
+            // 2. Update Text
+            document.getElementById('ts-display').innerText = merchantState.trustScore + "%";
+            document.getElementById('ts-bar').style.width = merchantState.trustScore + "%";
+
+            // 3. Calculate Tier
+            let tierName = "ITERANT";
+            let nextGoal = 30;
+            
+            if (merchantState.trustScore > 90) { tierName = "ELDER NOMINEE"; nextGoal = 100; }
+            else if (merchantState.trustScore > 70) { tierName = "GENESIS MASTER"; nextGoal = 91; }
+            else if (merchantState.trustScore > 30) { tierName = "PROVEN"; nextGoal = 71; }
+
+            document.getElementById('tier-name').innerText = tierName;
+            document.getElementById('next-tier-points').innerText = (nextGoal - merchantState.trustScore) + " Pts Left";
+
+            // 4. Update Bond Status
+            if (merchantState.isBonded) {
+                document.getElementById('bond-dot').className = "status-dot dot-green";
+                document.getElementById('bond-text').innerText = "SECURE";
+                document.getElementById('stake-btn').innerText = "✅ BOND ACTIVE";
+                document.getElementById('stake-btn').disabled = true;
+            }
+        }
+
+        // --- 🎭 CUSTOM MODAL SYSTEM ---
+
+        function showModal(title, message, type, callback) {
+            const overlay = document.getElementById('custom-modal-overlay');
+            const titleEl = document.getElementById('modal-title');
+            const msgEl = document.getElementById('modal-message');
+            const actionDiv = document.getElementById('modal-actions');
+
+            // 1. Set Content
+            titleEl.innerText = title;
+            msgEl.innerText = message;
+            actionDiv.innerHTML = ''; // Clear old buttons
+
+            // 2. Create Buttons based on Type
+            if (type === 'confirm') {
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = 'modal-btn btn-confirm';
+                confirmBtn.innerText = '✅ CONFIRM';
+                confirmBtn.onclick = function() {
+                    closeModal();
+                    if (callback) callback();
+                };
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'modal-btn btn-cancel';
+                cancelBtn.innerText = 'CANCEL';
+                cancelBtn.onclick = closeModal;
+
+                actionDiv.appendChild(cancelBtn);
+                actionDiv.appendChild(confirmBtn);
+
+            } else if (type === 'alert') {
+                const okBtn = document.createElement('button');
+                okBtn.className = 'modal-btn btn-confirm';
+                okBtn.innerText = 'UNDERSTOOD';
+                okBtn.onclick = closeModal;
+                
+                actionDiv.appendChild(okBtn);
+            }
+
+            // 3. Show
+            overlay.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal-overlay').style.display = 'none';
+        }
+
+        // --- 🏆 SUCCESS TOAST & CONFETTI ENGINE ---
+
+        function awardBounty(userName, trustBoost) {
+            // Trigger Toast
+            const toast = document.createElement('div');
+            toast.className = 'bounty-toast';
+            toast.innerHTML = `
+                <span class="badge-float">🏅</span>
+                GENESIS ACTION<br>
+                <span style="font-size: 0.8rem;">+${trustBoost}% Trust Score Awarded</span>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 100);
+            triggerConfetti();
+
+            // Cleanup
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 500);
+            }, 4000);
+        }
+
+        function triggerConfetti() {
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.innerText = 'π'; 
+                particle.style.position = 'fixed';
+                particle.style.left = Math.random() * 100 + 'vw';
+                particle.style.top = '100vh';
+                particle.style.fontSize = Math.random() * 20 + 10 + 'px';
+                particle.style.color = '#FFD700';
+                particle.style.zIndex = '99999';
+                particle.style.transition = `all ${Math.random() * 2 + 1}s ease-out`;
+                document.body.appendChild(particle);
+
+                setTimeout(() => {
+                    particle.style.top = '-10vh';
+                    particle.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    particle.style.opacity = '0';
+                }, 50);
+
+                setTimeout(() => particle.remove(), 3000);
+            }
+        }
+
+        // --- ⚡ SIMULATIONS (UPDATED) ---
+
+        function simulateTrade() {
+            if (merchantState.trustScore < 100) {
+                merchantState.trustScore += 2; 
+                updateUI();
+                awardBounty("You", 2); // 🟢 ACTIVATED: Toast will show now!
+            }
+        }
+
+        function stakeBond() {
+            if (!merchantState.isBonded) {
+                // REPLACED standard confirm() with showModal()
+                showModal(
+                    "🔒 INTEGRITY VAULT", 
+                    "Are you sure you want to lock 20 Pi into the Integrity Bond? This cannot be withdrawn for 30 days.", 
+                    "confirm", 
+                    function() {
+                        merchantState.isBonded = true;
+                        merchantState.trustScore += 10;
+                        updateUI();
+                        awardBounty("You", 10); // Success Toast
+                    }
+                );
+            }
+        }
+
+        function triggerEmergency() {
+            // REPLACED standard alert() with showModal()
+            showModal(
+                "🚨 MEDICAL PROTOCOL", 
+                "Emergency Signal Broadcasted. Your Security Circle has been notified to sign vouchers. Account Freeze Initiated.", 
+                "alert"
+            );
+        }
+
+        // Initialize
+        updateUI();
+
+    </script>
+</body>
+</html>
