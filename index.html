@@ -1,119 +1,43 @@
 <script>
-    // --- 🧠 PROJECT BAZAAR LOGIC ENGINE (2026) ---
-    let trust = 15;
-    let isConnected = false;
-    let isStaked = false;
-
-    // 1. Initialize the UI on Load
-    window.onload = () => {
-        updateUI();
-        // Simulation: Hide "Loading" after 1.5 seconds
-        setTimeout(() => {
-            const adminDisp = document.getElementById('admin-display');
-            if(adminDisp) adminDisp.innerText = "Admin: Verified (PinoyQ8)";
-        }, 1500);
+    // 🛡️ ERROR PROTECTION: Prevents the "Blank Screen"
+    window.onerror = function(msg, url, line) {
+        console.log("Error: " + msg + " at " + line);
+        return true; 
     };
 
+    let trust = 15;
+    let isConnected = false;
+
+    // Wait for the S23 to fully ready the DOM
+    document.addEventListener('DOMContentLoaded', () => {
+        updateUI();
+        document.getElementById('admin-display').innerText = "Admin: PinoyQ8";
+    });
+
     function updateUI() {
-        // Update Gauge with S23 Performance smoothing
-        const angle = trust * 3.6;
         const gauge = document.getElementById('trust-gauge');
-        if(gauge) gauge.style.background = `conic-gradient(var(--gold) ${angle}deg, #333 0deg)`;
-        
-        const tsDisp = document.getElementById('ts-display');
-        if(tsDisp) tsDisp.innerText = trust + "%";
-
-        // Update Bond Status text
-        const bondText = document.getElementById('bond-text');
-        const stakeBtn = document.getElementById('stake-btn');
-        
-        if (isStaked && bondText && stakeBtn) {
-            bondText.innerText = "● SECURE";
-            bondText.style.color = "var(--green)";
-            stakeBtn.innerText = "✅ BOND ACTIVE";
-            stakeBtn.style.opacity = "0.5";
-            stakeBtn.disabled = true;
+        if(gauge) {
+            const angle = trust * 3.6;
+            gauge.style.background = `conic-gradient(var(--gold) ${angle}deg, #333 0deg)`;
         }
+        const tsDisplay = document.getElementById('ts-display');
+        if(tsDisplay) tsDisplay.innerText = trust + "%";
     }
 
-    // 2. Connect Wallet Simulation (FIXED POPUP)
     function connectWallet() {
+        isConnected = true;
         const btn = document.getElementById('connect-btn');
-        btn.innerText = "⏳ WAIT...";
-        
-        setTimeout(() => {
-            isConnected = true;
-            btn.innerText = "🟢 PINOYQ8"; 
-            btn.style.borderColor = "var(--green)";
-            btn.style.color = "var(--green)";
-            
-            // CRITICAL FIX: Triggering the Modal display
-            showModal("WALLET CONNECTED", "Merchant Wallet G...P8Q8 is now linked to Project Bazaar.");
-        }, 800);
+        btn.innerText = "🟢 PINOYQ8";
+        showModal("SUCCESS", "Wallet Linked for 2026 Audit.");
     }
 
-    // 3. Stake Bond Simulation
-    function stakeBond() {
-        if (!isConnected) {
-            showModal("CONNECTION REQUIRED", "Please connect your Pi Wallet before staking the Integrity Bond.");
-            return;
-        }
-
-        showModal("CONFIRM STAKE", "You are about to lock 20 Pi as an Integrity Bond. This will boost your Trust Score by +10%. Proceed?");
-        
-        // Add a "Proceed" button to the modal for the demo
-        const modalBox = document.querySelector('.modal-box');
-        if (modalBox && !document.getElementById('confirm-action-btn')) {
-            const proceedBtn = document.createElement('button');
-            proceedBtn.id = "confirm-action-btn";
-            proceedBtn.className = 'btn';
-            proceedBtn.innerText = "CONFIRM 20 PI";
-            proceedBtn.style.marginTop = "10px";
-            proceedBtn.onclick = () => {
-                isStaked = true;
-                trust += 10;
-                updateUI();
-                closeModal();
-            };
-            modalBox.appendChild(proceedBtn);
-        }
-    }
-
-    function simulateTrade() {
-        if (trust < 100) {
-            trust += 2;
-            updateUI();
-            showModal("TRADE SUCCESS", "Transaction verified. Trust score increased by +2%.");
-        }
-    }
-
-    // --- UI HELPERS (Z-INDEX FIXED) ---
     function showModal(title, msg) {
-        const overlay = document.getElementById('custom-modal-overlay');
-        const mTitle = document.getElementById('modal-title');
-        const mMsg = document.getElementById('modal-message');
-        
-        if(overlay && mTitle && mMsg) {
-            mTitle.innerText = title;
-            mMsg.innerText = msg;
-            overlay.style.display = 'flex'; // This brings the hidden modal to life
-        }
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-message').innerText = msg;
+        document.getElementById('custom-modal-overlay').style.display = 'flex';
     }
 
     function closeModal() {
-        const overlay = document.getElementById('custom-modal-overlay');
-        if(overlay) overlay.style.display = 'none';
-        
-        // Remove temporary confirm buttons
-        const confirmBtn = document.getElementById('confirm-action-btn');
-        if (confirmBtn) confirmBtn.remove();
-    }
-
-    function toggleTheme() {
-        document.body.classList.toggle('light-mode');
-    }
-
-    function switchView(view) {
-        console.log("Navigating to: " + view);
+        document.getElementById('custom-modal-overlay').style.display = 'none';
     }
 </script>
