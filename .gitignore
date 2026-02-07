@@ -5,7 +5,6 @@
 keys.json
 secrets.js
 .secret/
-# If you have any file with your Stellar Secret Key, name it one of these!
 
 # 2. AI & Extension Clutter
 .gemini/
@@ -18,6 +17,12 @@ Thumbs.db
 Desktop.ini
 .DS_Store
 
-# 4. Dependencies
+# 4. Dependencies & Build
 node_modules/
 dist/
+target/
+
+# 5. THE FINISH PRODUCT (Force Git to see these)
+!index.html
+!logo.png
+!trust_logic/
