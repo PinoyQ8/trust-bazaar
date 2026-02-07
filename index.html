@@ -2,44 +2,94 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Bazaar | Final</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Project Bazaar | 2026</title>
     <style>
-        body { background: #121212; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
-        .card { background: #1e1e1e; border: 1px solid #FFD700; border-radius: 15px; padding: 20px; margin: 10px auto; max-width: 400px; }
-        .btn { background: #FFD700; color: black; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        #custom-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 100; }
+        :root { --gold: #FFD700; --pi-purple: #612F74; --bg: #121212; --card: #1e1e1e; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 15px; text-align: center; }
+        
+        /* The Excellence Seal */
+        .seal { width: 70px; height: 70px; background: var(--gold); border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center; border: 3px solid var(--pi-purple); box-shadow: 0 0 15px var(--gold); }
+        .pi { color: var(--pi-purple); font-size: 35px; font-weight: bold; }
+
+        .card { background: var(--card); border: 1px solid #333; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .gauge { width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--gold) 54deg, #333 0deg); margin: 15px auto; display: flex; align-items: center; justify-content: center; }
+        .gauge-inner { width: 95px; height: 95px; background: var(--card); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        .btn { background: linear-gradient(to bottom, var(--gold), #b8860b); color: black; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .btn-outline { background: none; border: 2px solid var(--gold); color: var(--gold); }
+
+        #custom-modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:1000; }
+        .modal { background: var(--card); padding: 25px; border-radius: 15px; border: 2px solid var(--gold); width: 80%; max-width: 300px; }
     </style>
 </head>
 <body>
-    <h2 style="color:#FFD700">MERCHANT COMMAND</h2>
+
+    <div class="seal"><div class="pi">π</div></div>
+    <h2 style="color: var(--gold); margin: 5px 0;">MERCHANT COMMAND</h2>
+    <p id="admin" style="font-size: 0.8rem; color: #aaa;">Admin: Loading...</p>
+
     <div class="card">
-        <h3>TRUST SCORE</h3>
-        <h1 id="score">15%</h1>
-        <button class="btn" onclick="connect()">CONNECT WALLET</button>
-        <button class="btn" style="margin-top:10px; background:none; border: 1px solid #FFD700; color:#FFD700" onclick="stake()">STAKE PI BOND</button>
+        <h3 style="margin: 0; color: var(--gold);">TRUST SCORE</h3>
+        <div class="gauge" id="gauge">
+            <div class="gauge-inner">
+                <h2 id="score" style="margin:0;">15%</h2>
+                <span style="font-size: 0.6rem; color: #888;">ITERANT</span>
+            </div>
+        </div>
+        <button class="btn-outline" style="padding: 10px; border-radius: 8px;" id="conn-btn" onclick="connect()">🔌 CONNECT WALLET</button>
+    </div>
+
+    <div class="card">
+        <h3 style="margin: 0; color: var(--gold);">PI BOND</h3>
+        <p style="font-size: 0.8rem;" id="status">● NOT STAKED</p>
+        <button class="btn" id="stake-btn" onclick="stake()">🔒 STAKE 20 PI</button>
     </div>
 
     <div id="custom-modal-overlay">
-        <div style="background:#1e1e1e; padding:30px; border-radius:15px; border:2px solid #FFD700;">
-            <h2 id="m-title"></h2>
-            <p id="m-body"></p>
-            <button class="btn" onclick="closeM()">CLOSE</button>
+        <div class="modal">
+            <h3 id="m-title" style="color: var(--gold); margin-top: 0;"></h3>
+            <p id="m-body" style="font-size: 0.9rem;"></p>
+            <button class="btn" onclick="closeM()">UNDERSTOOD</button>
         </div>
     </div>
 
     <script>
+        let trust = 15;
+        let connected = false;
+
+        window.onload = () => {
+            document.getElementById('admin').innerText = "Admin: PinoyQ8";
+        };
+
         function connect() {
-            document.getElementById('m-title').innerText = "CONNECTED";
-            document.getElementById('m-body').innerText = "Wallet PinoyQ8 Linked.";
-            document.getElementById('custom-modal-overlay').style.display = 'flex';
+            connected = true;
+            document.getElementById('conn-btn').innerText = "🟢 PINOYQ8 LINKED";
+            document.getElementById('conn-btn').style.color = "#4CAF50";
+            showM("CONNECTED", "Pi Wallet G...P8Q8 is now synced with Project Bazaar.");
         }
+
         function stake() {
+            if(!connected) {
+                showM("WAIT!", "Please connect your wallet first.");
+                return;
+            }
+            trust = 25;
             document.getElementById('score').innerText = "25%";
-            document.getElementById('m-title').innerText = "BOND ACTIVE";
-            document.getElementById('m-body').innerText = "20 Pi Locked. Trust Score Boosted!";
+            document.getElementById('gauge').style.background = `conic-gradient(var(--gold) 90deg, #333 0deg)`;
+            document.getElementById('status').innerText = "● SECURE";
+            document.getElementById('status').style.color = "#4CAF50";
+            document.getElementById('stake-btn').innerText = "✅ BOND ACTIVE";
+            document.getElementById('stake-btn').style.opacity = "0.5";
+            showM("BOND ACTIVE", "20 Pi successfully locked. Your Trust Score has been boosted!");
+        }
+
+        function showM(t, b) {
+            document.getElementById('m-title').innerText = t;
+            document.getElementById('m-body').innerText = b;
             document.getElementById('custom-modal-overlay').style.display = 'flex';
         }
+
         function closeM() {
             document.getElementById('custom-modal-overlay').style.display = 'none';
         }
