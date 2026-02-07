@@ -31,30 +31,14 @@
         }
 
         @keyframes scrollText {
-            0% {
-                transform: translateX(100%);
-            }
-
-            100% {
-                transform: translateX(-100%);
-            }
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
         }
 
         @keyframes pulse {
-            0% {
-                transform: scale(1);
-                filter: drop-shadow(0 0 5px var(--gold));
-            }
-
-            50% {
-                transform: scale(1.05);
-                filter: drop-shadow(0 0 12px var(--gold));
-            }
-
-            100% {
-                transform: scale(1);
-                filter: drop-shadow(0 0 5px var(--gold));
-            }
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px var(--gold)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 12px var(--gold)); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 5px var(--gold)); }
         }
 
         .logo-container {
@@ -170,23 +154,21 @@
             margin-bottom: 8px;
             border-bottom: 1px solid #333;
             padding-bottom: 5px;
+            word-break: break-all;
         }
     </style>
 </head>
 
 <body>
 
-    <div
-        style="background: var(--gold); color: black; font-size: 0.65rem; font-weight: bold; padding: 6px 0; overflow: hidden; white-space: nowrap; border-bottom: 2px solid #b8860b; margin-bottom: 15px;">
+    <div style="background: var(--gold); color: black; font-size: 0.65rem; font-weight: bold; padding: 6px 0; overflow: hidden; white-space: nowrap; border-bottom: 2px solid #b8860b; margin-bottom: 15px;">
         <div style="display: inline-block; animation: scrollText 18s linear infinite;">
-            🚀 PROJECT BAZAAR GENESIS IS LIVE • 65% MESH ACTIVATION REACHED • WELCOME PIONEERS FROM PHILIPPINES & KUWAIT
-            • BQS v1.0 AUDIT READY •
+            🚀 PROJECT BAZAAR GENESIS IS LIVE • 65% MESH ACTIVATION REACHED • WELCOME PIONEERS FROM PHILIPPINES & KUWAIT • BQS v1.0 AUDIT READY •
         </div>
     </div>
 
     <div class="logo-container">
-        <img src="./logo.png" alt="Logo" class="main-logo"
-            onerror="this.src='https://minepi.com/wp-content/uploads/2023/05/Pi-Network-Logo.png'">
+        <img src="./logo.png" alt="Logo" class="main-logo" onerror="this.src='https://minepi.com/wp-content/uploads/2023/05/Pi-Network-Logo.png'">
     </div>
 
     <div style="margin: 5px 0 15px 0;">
@@ -197,29 +179,23 @@
     <div class="card">
         <div class="gauge" id="gauge">
             <div class="gauge-inner">
-                <h2 id="score" style="margin:0;">15%</h2><span id="tier-label"
-                    style="font-size: 0.5rem; color: #888;">ITERANT</span>
+                <h2 id="score" style="margin:0;">15%</h2>
+                <span id="tier-label" style="font-size: 0.5rem; color: #888;">ITERANT</span>
             </div>
         </div>
-        <button class="btn" id="conn-btn"
-            style="background:none; border: 1px solid var(--gold); color: var(--gold); width: auto; padding: 8px 15px; margin-top: 10px;">🔌
-            CONNECT WALLET</button>
+        <button class="btn" id="conn-btn" style="background:none; border: 1px solid var(--gold); color: var(--gold); width: auto; padding: 8px 15px; margin-top: 10px;">🔌 CONNECT WALLET</button>
     </div>
 
     <h5 style="color: var(--gold); margin: 20px 0 10px 0;">ELITE INVENTORY</h5>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 10px; margin-bottom: 20px;">
         <div class="card" style="margin:0; padding:10px;">
-            <div
-                style="width:100%; height:80px; background:#333; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2rem;">
-                📦</div>
+            <div style="width:100%; height:80px; background:#333; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2rem;">📦</div>
             <h6 style="margin:8px 0 4px 0; font-size:0.7rem;">GENESIS PASS</h6>
             <p style="color:var(--gold); font-weight:bold; margin:0 0 8px 0; font-size:0.8rem;">10.00 π</p>
             <button class="btn" onclick="showM('PAYMENT', 'Requesting 10.00 Pi for Genesis Pass...')">BUY</button>
         </div>
         <div class="card" style="margin:0; padding:10px;">
-            <div
-                style="width:100%; height:80px; background:#333; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2rem;">
-                🛡️</div>
+            <div style="width:100%; height:80px; background:#333; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2rem;">🛡️</div>
             <h6 style="margin:8px 0 4px 0; font-size:0.7rem;">VOUCH TOKEN</h6>
             <p style="color:var(--gold); font-weight:bold; margin:0 0 8px 0; font-size:0.8rem;">5.00 π</p>
             <button class="btn" onclick="showM('PAYMENT', 'Requesting 5.00 Pi for Vouch Token...')">BUY</button>
@@ -230,19 +206,22 @@
         <h6 style="color: var(--blue); margin: 0 0 10px 0; letter-spacing: 1px;">🛡️ ON-CHAIN AUDIT LOG</h6>
 
         <div class="audit-entry">
-            <span style="color: var(--gold);">FILE:</span> Terms_v1.0.html<br>
-            <span style="color: var(--blue);">SHA-256:</span>
-            e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+            <span style="color: var(--gold);">FILE:</span> privacy.html<br>
+            <span style="color: var(--blue);">SHA-256:</span> 5190e11b5b3aa1a5f94e83f363ed2dd2a29f27d326d4e39db9e2302cea04f6d2
         </div>
 
         <div class="audit-entry">
-            <span style="color: var(--gold);">FILE:</span> Merchant_License_v1.0.pdf<br>
-            <span style="color: var(--blue);">SHA-256:</span>
-            f2ca1bb6c7e907d06dafe4687e579fce76b37ee10123516c27187c2b52b855
+            <span style="color: var(--gold);">FILE:</span> terms.html<br>
+            <span style="color: var(--blue);">SHA-256:</span> af03908b3214ad06021063d90e4b3a0f033d490300ac8241c9a355971d106191
+        </div>
+
+        <div class="audit-entry">
+            <span style="color: var(--gold);">FILE:</span> Merchant_License.pdf<br>
+            <span style="color: #666;">STATUS:</span> PENDING ELITE AUDIT
         </div>
 
         <button class="btn btn-blue" style="margin-top: 5px; font-size: 0.6rem;"
-            onclick="showM('AUDIT VERIFIED', 'These SHA-256 hashes are anchored to the Pi Blockchain. This proves the authenticity of our Merchant License and Terms of Service as of Feb 2026.')">
+            onclick="showM('AUDIT VERIFIED', 'These SHA-256 hashes are anchored to the Project Bazaar Registry. This proves the authenticity of our legal documents as of Feb 2026.')">
             🔍 VERIFY ANCHORS
         </button>
     </div>
@@ -252,22 +231,17 @@
         <div class="btn-grid">
             <button class="btn btn-blue" id="qr-btn">📱 QR INVOICE</button>
             <button class="btn btn-danger" id="freeze-btn">❄️ FREEZE ACC</button>
-            <button class="btn" style="background:#333; color:var(--gold); border: 1px solid var(--gold);"
-                id="vouch-btn">🤝 VOUCH</button>
-            <button class="btn" style="background:#333; color:var(--gold); border: 1px solid var(--gold);"
-                id="decay-btn">📉 DECAY</button>
+            <button class="btn" style="background:#333; color:var(--gold); border: 1px solid var(--gold);" id="vouch-btn">🤝 VOUCH</button>
+            <button class="btn" style="background:#333; color:var(--gold); border: 1px solid var(--gold);" id="decay-btn">📉 DECAY</button>
         </div>
     </div>
 
     <footer style="margin-top: 20px; padding: 15px 10px; border-top: 1px solid #333; opacity: 0.7;">
         <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 8px;">
-            <a href="privacy.html" style="color: var(--blue); font-size: 0.65rem; text-decoration: none;">PRIVACY
-                POLICY</a>
-            <a href="terms.html" style="color: var(--blue); font-size: 0.65rem; text-decoration: none;">TERMS OF
-                SERVICE</a>
+            <a href="privacy.html" style="color: var(--blue); font-size: 0.65rem; text-decoration: none;">PRIVACY POLICY</a>
+            <a href="terms.html" style="color: var(--blue); font-size: 0.65rem; text-decoration: none;">TERMS OF SERVICE</a>
         </div>
-        <p style="color: #666; font-size: 0.5rem; letter-spacing: 1px; margin: 0; font-weight: bold;">BAZAAR E-NETWORK
-            DAO • 2026 • GLOBAL PIONEERS</p>
+        <p style="color: #666; font-size: 0.5rem; letter-spacing: 1px; margin: 0; font-weight: bold;">BAZAAR E-NETWORK DAO • 2026 • GLOBAL PIONEERS</p>
     </footer>
 
     <div id="custom-modal-overlay">
