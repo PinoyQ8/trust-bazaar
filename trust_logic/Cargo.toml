@@ -21,3 +21,11 @@ debug-assertions = false
 panic = "abort"
 codegen-units = 1
 lto = true
+
+# If it's a Rust error:
+cargo clean
+cargo check
+
+# If it's a Git/Sync error:
+git add .
+git status
