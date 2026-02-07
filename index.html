@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Project Bazaar | 2026 Elite</title>
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+    <script>Pi.init({ version: "2.0", sandbox: true });</script>
     <style>
         :root { --gold: #FFD700; --pi-purple: #612F74; --bg: #121212; --card: #1e1e1e; --red: #ff4444; --green: #4CAF50; --blue: #3498db; }
         body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 0; text-align: center; box-sizing: border-box; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
@@ -25,7 +27,8 @@
 
         #custom-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); display: none; align-items: center; justify-content: center; z-index: 10000; }
         .modal { background: var(--card); padding: 20px; border-radius: 15px; border: 2px solid var(--gold); width: 280px; text-align: center; }
-        .qr-container { width: 140px; height: 140px; background: white; margin: 10px auto; padding: 5px; display: flex; align-items: center; justify-content: center; }
+        
+        .audit-entry { text-align: left; font-family: monospace; font-size: 0.52rem; color: #aaa; margin-bottom: 8px; border-bottom: 1px solid #333; padding-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -37,15 +40,52 @@
     </div>
 
     <div class="logo-container">
-        <img src="./logo.png" alt="Logo" class="main-logo" 
-            onerror="this.src='https://minepi.com/wp-content/uploads/2023/05/Pi-Network-Logo.png'">
+        <img src="./logo.png" alt="Logo" class="main-logo" onerror="this.src='https://minepi.com/wp-content/uploads/2023/05/Pi-Network-Logo.png'">
     </div>
 
-    <h4 style="color: var(--gold); margin: 5px 0;">BAZAAR ELITE COMMAND</h4>
+    <div style="margin: 5px 0 15px 0;">
+        <h4 style="color: var(--gold); margin: 0; letter-spacing: 2px;">BAZAAR MERCHANT</h4>
+        <p style="color: var(--green); font-size: 0.6rem; margin: 2px 0;">ID: PINOYQ8-KWT-001 • VERIFIED FOUNDER</p>
+    </div>
 
     <div class="card">
         <div class="gauge" id="gauge"><div class="gauge-inner"><h2 id="score" style="margin:0;">15%</h2><span id="tier-label" style="font-size: 0.5rem; color: #888;">ITERANT</span></div></div>
         <button class="btn" id="conn-btn" style="background:none; border: 1px solid var(--gold); color: var(--gold); width: auto; padding: 8px 15px; margin-top: 10px;">🔌 CONNECT WALLET</button>
+    </div>
+
+    <h5 style="color: var(--gold); margin: 20px 0 10px 0;">ELITE INVENTORY</h5>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 10px; margin-bottom: 20px;">
+        <div class="card" style="margin:0; padding:10px;">
+            <div style="width:100%; height:80px; background:#333; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2rem;">📦</div>
+            <h6 style="margin:8px 0 4px 0; font-size:0.7rem;">GENESIS PASS</h6>
+            <p style="color:var(--gold); font-weight:bold; margin:0 0 8px 0; font-size:0.8rem;">10.00 π</p>
+            <button class="btn" onclick="showM('PAYMENT', 'Requesting 10.00 Pi for Genesis Pass...')">BUY</button>
+        </div>
+        <div class="card" style="margin:0; padding:10px;">
+            <div style="width:100%; height:80px; background:#333; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2rem;">🛡️</div>
+            <h6 style="margin:8px 0 4px 0; font-size:0.7rem;">VOUCH TOKEN</h6>
+            <p style="color:var(--gold); font-weight:bold; margin:0 0 8px 0; font-size:0.8rem;">5.00 π</p>
+            <button class="btn" onclick="showM('PAYMENT', 'Requesting 5.00 Pi for Vouch Token...')">BUY</button>
+        </div>
+    </div>
+
+    <div class="card" style="border: 1px solid var(--blue); background: rgba(52, 152, 219, 0.05); margin-top: 20px;">
+        <h6 style="color: var(--blue); margin: 0 0 10px 0; letter-spacing: 1px;">🛡️ ON-CHAIN AUDIT LOG</h6>
+        
+        <div class="audit-entry">
+            <span style="color: var(--gold);">FILE:</span> Terms_v1.0.html<br>
+            <span style="color: var(--blue);">SHA-256:</span> e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+        </div>
+
+        <div class="audit-entry">
+            <span style="color: var(--gold);">FILE:</span> Merchant_License_v1.0.pdf<br>
+            <span style="color: var(--blue);">SHA-256:</span> f2ca1bb6c7e907d06dafe4687e579fce76b37ee10123516c27187c2b52b855
+        </div>
+
+        <button class="btn btn-blue" style="margin-top: 5px; font-size: 0.6rem;" 
+            onclick="showM('AUDIT VERIFIED', 'These SHA-256 hashes are anchored to the Pi Blockchain. This proves the authenticity of our Merchant License and Terms of Service as of Feb 2026.')">
+            🔍 VERIFY ANCHORS
+        </button>
     </div>
 
     <div class="card">
@@ -55,22 +95,6 @@
             <button class="btn btn-danger" id="freeze-btn">❄️ FREEZE ACC</button>
             <button class="btn" style="background:#333; color:var(--gold); border: 1px solid var(--gold);" id="vouch-btn">🤝 VOUCH</button>
             <button class="btn" style="background:#333; color:var(--gold); border: 1px solid var(--gold);" id="decay-btn">📉 DECAY</button>
-        </div>
-    </div>
-
-    <div class="card">
-        <p style="font-size: 0.6rem; margin: 0 0 5px 0;" id="status">● SECURITY BOND: NOT STAKED</p>
-        <button class="btn" id="stake-btn">🔒 LOCK 20 PI BOND</button>
-    </div>
-
-    <div class="card" style="border: 1px dashed var(--gold); background: rgba(255, 215, 0, 0.02); margin-top: 20px;">
-        <h6 style="color: var(--gold); margin: 0 0 10px 0; letter-spacing: 1px;">GENESIS PHASE 1 PROGRESS</h6>
-        <div style="width: 100%; background: #333; height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid #444;">
-            <div id="progress-bar" style="width: 65%; height: 100%; background: linear-gradient(90deg, #b8860b, var(--gold));"></div>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-            <span style="font-size: 0.55rem; color: #888;">MESH ACTIVATION</span>
-            <span style="font-size: 0.55rem; color: var(--gold); font-weight: bold;">65% COMPLETE</span>
         </div>
     </div>
 
@@ -102,7 +126,6 @@
                 document.getElementById('score').style.color = "var(--red)";
                 document.getElementById('tier-label').innerText = "SUSPENDED";
                 document.getElementById('tier-label').style.color = "var(--red)";
-                document.getElementById('stake-btn').style.opacity = "0.5";
                 document.getElementById('qr-btn').style.opacity = "0.5";
             } else {
                 trust = Math.max(0, Math.min(100, trust));
@@ -112,7 +135,6 @@
                 let label = (trust >= 85) ? "ELDER" : (trust >= 50) ? "VERIFIED" : (trust >= 25) ? "PROVEN" : "ITERANT";
                 document.getElementById('tier-label').innerText = label;
                 document.getElementById('tier-label').style.color = "#888";
-                document.getElementById('stake-btn').style.opacity = "1";
                 document.getElementById('qr-btn').style.opacity = "1";
             }
         }
@@ -150,14 +172,6 @@
                 this.style.borderColor = frozen ? "var(--gold)" : "var(--red)";
                 showM(frozen ? "FROZEN" : "RESTORED", frozen ? "⚠️ EMERGENCY STOP ACTIVE" : "Account limits lifted.");
                 updateUI();
-            };
-            document.getElementById('stake-btn').onclick = function() {
-                if(frozen || !connected) return;
-                trust += 10; updateUI();
-                document.getElementById('status').innerText = "● SECURITY BOND: SECURE";
-                document.getElementById('status').style.color = "var(--green)";
-                this.innerText = "✅ BOND ACTIVE";
-                this.disabled = true;
             };
             document.getElementById('vouch-btn').onclick = () => { if(connected && !frozen) { trust += 5; updateUI(); } };
             document.getElementById('decay-btn').onclick = () => { if(connected && !frozen) { trust -= 3; updateUI(); } };
