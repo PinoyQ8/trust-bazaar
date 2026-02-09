@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline';">
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob:;">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     
-    <title>Project Bazaar | Genesis</title>
+    <title>Project Bazaar | Global Grid</title>
     
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
         :root {
@@ -24,19 +27,22 @@
         }
         .ticker-wrap { background: var(--gold); color: black; width: 100%; padding: 8px; text-align: center; font-weight: bold; font-size: 0.8rem; margin-bottom: 20px; border-radius: 4px; }
         .card { background: var(--card-bg); border: 1px solid #333; border-radius: 15px; padding: 20px; width: 90%; max-width: 350px; text-align: center; margin-bottom: 20px; }
+        
+        /* 🗺️ Map Container */
+        #map { height: 200px; width: 100%; border-radius: 10px; margin: 15px 0; border: 1px solid #444; z-index: 1; }
+        
         .btn { padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; width: 100%; margin: 8px 0; transition: 0.3s; }
         .btn-blue { background: var(--blue); color: white; }
         .btn-danger { background: var(--red); color: white; }
         
-        /* TRUST SCORE GAUGE */
         .trust-circle {
-            width: 150px; height: 150px; border-radius: 50%;
+            width: 140px; height: 140px; border-radius: 50%;
             background: conic-gradient(var(--gold) 15%, #333 0%);
             margin: 15px auto; display: flex; align-items: center; justify-content: center;
         }
-        .trust-inner { width: 120px; height: 120px; background-color: var(--card-bg); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .score-big { font-size: 2.2rem; font-weight: bold; color: var(--gold); }
-        .tier-badge { background: #612F74; padding: 6px 18px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; margin: 10px 0; }
+        .trust-inner { width: 110px; height: 110px; background-color: var(--card-bg); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .score-big { font-size: 2rem; font-weight: bold; color: var(--gold); }
+        .tier-badge { background: #612F74; padding: 6px 18px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; margin: 10px 0; display: inline-block; }
         
         .progress-track { background: #333; height: 8px; border-radius: 4px; margin-top: 10px; overflow: hidden; }
         .progress-fill { background: var(--gold); height: 100%; width: 15%; transition: 1s ease; }
@@ -44,15 +50,10 @@
 </head>
 
 <body>
-    <div class="ticker-wrap">🚀 PROJECT BAZAAR GENESIS LIVE • GLOBAL LEGACY PROTOCOL</div>
-
-    <div style="text-align: center; margin-bottom: 15px;">
-        <h4 style="color: var(--gold); margin: 0;">GLOBAL PIONEER NODE</h4>
-        <p id="user-identity" style="color: var(--text-dim); font-size: 0.8rem;">ID: NOT CONNECTED</p>
-    </div>
+    <div class="ticker-wrap">🚀 PROJECT BAZAAR GENESIS • GLOBAL GRID ACTIVE</div>
 
     <div class="card">
-        <h3 style="margin:0; color:var(--gold)">🛡️ MERCHANT IDENTITY</h3>
+        <h3 style="margin:0; color:var(--gold)">🛡️ IDENTITY GAUGE</h3>
         <div class="trust-circle" id="trust-gauge">
             <div class="trust-inner">
                 <span class="score-big" id="ts-display">15%</span>
@@ -60,141 +61,128 @@
             </div>
         </div>
         <div class="tier-badge" id="tier-name">ITERANT</div>
-        
         <div class="progress-track"><div class="progress-fill" id="ts-bar"></div></div>
-        
         <button id="connect-btn" class="btn" style="border: 1px solid var(--gold); background: transparent; color: var(--gold); margin-top: 20px;">🔌 CONNECT WALLET</button>
     </div>
 
     <div class="card">
+        <h3 style="margin:0; color:var(--gold)">🌍 GLOBAL GRID</h3>
+        <div id="map"></div>
+        <p id="user-identity" style="color: var(--text-dim); font-size: 0.75rem; margin: 0;">ID: NOT CONNECTED</p>
+    </div>
+
+    <div class="card">
         <h3 style="margin:0; color:var(--gold); border-bottom: 1px solid #333; padding-bottom: 10px;">📜 MERCHANT LEDGER</h3>
-        <div id="merchant-list" style="max-height: 200px; overflow-y: auto; text-align: left; margin-top: 10px; padding-right: 5px;">
-            <!-- Dynamic Content Loads Here -->
-            <p style="color:var(--text-dim); text-align:center; font-size: 0.8rem;">Waiting for Node Connection...</p>
+        <div id="merchant-list" style="max-height: 200px; overflow-y: auto; text-align: left; margin-top: 10px;">
+            <p style="color:var(--text-dim); text-align:center; font-size: 0.8rem;">Awaiting Node Connection...</p>
         </div>
     </div>
 
     <div class="card">
         <h5 style="margin:0 0 10px 0; color:var(--gold)">🛠️ MERCHANT UTILITY</h5>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <button class="btn btn-blue">📱 QR</button>
+            <button class="btn btn-blue">📱 SCAN QR</button>
             <button id="commit-btn" class="btn btn-danger">COMMIT PI</button>
         </div>
     </div>
 
     <script>
-        // 🛡️ AUTH & DATA LOGIC
-        let discoveryPoints = 0;
+        let discoveryPoints = 15; // Starting base
         const discoveredMerchants = new Set();
         let currentUser = "Guest";
+        let map;
 
         async function initBazaar() {
             try {
-                // Initialize Pi SDK
                 Pi.init({ version: "2.0", sandbox: false });
-                console.log("Pi SDK Ready");
-            } catch (e) { console.error("SDK Error", e); }
+            } catch (e) { console.warn("SDK Sandbox Mode"); }
         }
 
         function updateGauge() {
-            // 2. Gauge Reactivity Logic
-            const maxPoints = 100; // Cap for visual gauge
+            const maxPoints = 100;
             const percentage = Math.min((discoveryPoints / maxPoints) * 100, 100);
-            
-            // Update Visuals
-            document.getElementById('trust-gauge').style.background = 
-                `conic-gradient(var(--gold) ${percentage}%, #333 0%)`;
-            document.getElementById('ts-display').innerText = discoveryPoints;
+            document.getElementById('trust-gauge').style.background = `conic-gradient(var(--gold) ${percentage}%, #333 0%)`;
+            document.getElementById('ts-display').innerText = percentage + "%";
             document.getElementById('ts-bar').style.width = `${percentage}%`;
 
-            // Update Tier Name
-            let tierName = "ITERANT";
-            if (discoveryPoints > 70) tierName = "ELDER NOMINEE";
-            else if (discoveryPoints > 30) tierName = "PROVEN";
-            
-            document.getElementById('tier-name').innerText = tierName;
+            let tier = "ITERANT";
+            if (discoveryPoints >= 70) tier = "ELDER NOMINEE";
+            else if (discoveryPoints >= 35) tier = "PROVEN";
+            document.getElementById('tier-name').innerText = tier;
+        }
+
+        // 🗺️ Initialize the Global Grid
+        function renderMap(merchants) {
+            if (map) return;
+            map = L.map('map').setView([20, 0], 1);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+            merchants.forEach(m => {
+                // Use Name length to create stable "fake" coords if CSV lacks them
+                const lat = m.Lat ? parseFloat(m.Lat) : (Math.sin(m.Name.length) * 60);
+                const lng = m.Lng ? parseFloat(m.Lng) : (Math.cos(m.Name.length) * 120);
+                
+                L.circleMarker([lat, lng], {
+                    radius: 4, fillColor: "var(--gold)", color: "#000", weight: 1, opacity: 1, fillOpacity: 0.8
+                }).addTo(map).bindPopup(`<b>${m.Name}</b><br>${m.Location}`);
+            });
         }
 
         async function connectWallet() {
             try {
-                const auth = await Pi.authenticate(['username', 'payments'], (p) => {});
-                
-                currentUser = auth.user.username;
-                document.getElementById('user-identity').innerText = `WELCOME, ${currentUser.toUpperCase()}`;
-                
+                // Mock Auth for testing
+                currentUser = "Founder_" + Math.floor(Math.random()*999);
+                document.getElementById('user-identity').innerText = `NODE: ${currentUser.toUpperCase()}`;
                 document.getElementById('connect-btn').innerText = "✅ NODE CONNECTED";
                 document.getElementById('connect-btn').style.color = "var(--green)";
-                
-                // Load actual CSV data from our server
+
                 const response = await fetch('/api/merchants');
                 const data = await response.json();
-                console.log("Bazaar Merchants Loaded:", data.length);
-
-                // Render Universal UI List
-                const listContainer = document.getElementById('merchant-list');
-                listContainer.innerHTML = ''; // Clear loading state
-
-                data.forEach(merchant => {
-                    const item = document.createElement('div');
-                    item.style.borderBottom = '1px solid #333';
-                    item.style.padding = '10px 0';
-                    item.style.cursor = 'pointer';
-                    
-                    // 1. Discovery Points & 3. Engagement Logs
-                    item.onclick = async () => {
-                        const mName = merchant.Name || 'Unknown';
-                        if (!discoveredMerchants.has(mName)) {
-                            discoveredMerchants.add(mName);
-                            discoveryPoints += 5;
-                            updateGauge();
-                            
-                            // Send log to server
-                            const response = await fetch('/api/discovery', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ merchant: mName, points: discoveryPoints, user: currentUser })
-                            });
-
-                            // 2. Visual Success: Confirm J: Drive Receipt
-                            const result = await response.json();
-                            if (result.status === "Logged") {
-                                const btn = document.getElementById('commit-btn');
-                                btn.innerText = "✅ RECORDED ON J:DRIVE";
-                                btn.style.background = "var(--green)";
-                            }
-                        }
-                    };
-
-                    item.innerHTML = `
-                        <div style="color:var(--gold); font-weight:bold; font-size: 0.9rem;">${merchant.Name || 'Unknown Merchant'}</div>
-                        <div style="font-size:0.75rem; color:var(--text-dim);">📍 ${merchant.Location || 'Global'} • 🛠️ ${merchant.Utility || 'General'}</div>
-                    `;
-                    listContainer.appendChild(item);
-                });
                 
-            } catch (err) {
-                alert("Please open in Pi Browser");
-            }
+                renderMap(data); // 🌍 Draw the Map
+                renderList(data); // 📜 Draw the List
+            } catch (err) { alert("Server Connection Failed"); }
         }
 
-        // 4. Mainnet Simulation
-        function simulateCommit() {
-            console.log("Initiating Stellar v23 Handshake...");
-            const btn = document.getElementById('commit-btn');
-            btn.innerText = "⏳ TRANSACTION PENDING...";
-            btn.disabled = true;
-            
-            setTimeout(() => {
-                console.log("Stellar Consensus Reached.");
-                btn.innerText = "✅ COMMITTED";
-                btn.style.background = "var(--green)";
-            }, 2000);
+        function renderList(data) {
+            const listContainer = document.getElementById('merchant-list');
+            listContainer.innerHTML = '';
+            data.forEach(merchant => {
+                const item = document.createElement('div');
+                item.style.borderBottom = '1px solid #333';
+                item.style.padding = '10px 0';
+                item.style.cursor = 'pointer';
+                item.innerHTML = `<div style="color:var(--gold); font-weight:bold; font-size: 0.9rem;">${merchant.Name}</div>
+                                  <div style="font-size:0.75rem; color:var(--text-dim);">📍 ${merchant.Location}</div>`;
+                
+                item.onclick = async () => {
+                    if (!discoveredMerchants.has(merchant.Name)) {
+                        discoveredMerchants.add(merchant.Name);
+                        discoveryPoints += 5;
+                        updateGauge();
+                        
+                        // Handshake with J: Drive
+                        const res = await fetch('/api/discovery', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ merchant: merchant.Name, points: discoveryPoints, user: currentUser })
+                        });
+                        if (res.ok) {
+                            const btn = document.getElementById('commit-btn');
+                            btn.innerText = "✅ RECORDED ON J:DRIVE";
+                            btn.style.background = "var(--green)";
+                            setTimeout(() => { btn.innerText = "COMMIT PI"; btn.style.background = "var(--red)"; }, 2000);
+                        }
+                    }
+                };
+                listContainer.appendChild(item);
+            });
         }
 
         window.addEventListener('load', () => {
             initBazaar();
+            updateGauge();
             document.getElementById('connect-btn').onclick = connectWallet;
-            document.getElementById('commit-btn').onclick = simulateCommit;
         });
     </script>
 </body>
