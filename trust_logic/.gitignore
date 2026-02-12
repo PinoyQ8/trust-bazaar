@@ -19,4 +19,4 @@ auth.json
 # IDE & OS
 .vscode/
 .DS_Store
-Thumbs.db
+Thumbs.dbtarget/
