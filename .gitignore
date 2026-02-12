@@ -1,28 +1,4 @@
-# --- Project Bazaar Shield ---
-
-# 1. Private Keys & Secrets (CRITICAL)
-.env
-keys.json
-secrets.js
-.secret/
-
-# 2. AI & Extension Clutter
-.gemini/
-.vscode/
-*.log
-npm-debug.log*
-
-# 3. System Garbage
-Thumbs.db
-Desktop.ini
-.DS_Store
-
-# 4. Dependencies & Build
+﻿target/
 node_modules/
-dist/
-target/
-
-# 5. THE FINISH PRODUCT (Force Git to see these)
-!index.html
-!logo.png
-!trust_logic/
+stellar-data/
+.env
