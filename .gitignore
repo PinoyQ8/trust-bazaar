@@ -2,3 +2,4 @@
 node_modules/
 stellar-data/
 .env
+.next/ 

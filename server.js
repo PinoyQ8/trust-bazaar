@@ -1,68 +1,53 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs'); // Added: To read your J: drive files
-const app = express();
-const PORT = 3000;
+// server.js - Project Bazaar: Hybrid Security Adjudicator v2.5
+const fs = require('fs');
+const http = require('http');
 
-// 🛠️ MIDDLEWARE: Parse JSON bodies for engagement logs
-app.use(express.json());
+const logFile = 'Scan_Logs.txt';
+const keyFile = 'validation-key.txt';
+const BRIDGE_URL = 'http://localhost:4040/api/tunnels';
 
-// 🛡️ SECURITY HEADER: Bypasses the ngrok warning page for the S23
-app.use((req, res, next) => {
-    res.setHeader('ngrok-skip-browser-warning', 'true');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    next();
-});
-
-// 📂 ASSET DELIVERY: Serves your Bazaar UI files
-app.use(express.static(path.join(__dirname)));
-
-// 📦 BAZAAR DATA PROTOCOL: This reads your CSV and sends it to the S23
-app.get('/api/merchants', (req, res) => {
+function getValidationKey() {
     try {
-        const filePath = path.join(__dirname, 'Genesis_100.csv');
-
-        if (!fs.existsSync(filePath)) {
-            return res.status(404).json({ error: "Genesis_100.csv not found on J: drive" });
-        }
-
-        const data = fs.readFileSync(filePath, 'utf8');
-        const lines = data.split('\n').filter(line => line.trim() !== '');
-        const headers = lines[0].split(',').map(h => h.trim());
-
-        const merchants = lines.slice(1).map(line => {
-            const values = line.split(',');
-            return headers.reduce((obj, header, i) => {
-                obj[header] = values[i] ? values[i].trim() : "";
-                return obj;
-            }, {});
-        });
-
-        res.json(merchants);
+        return fs.readFileSync(keyFile, 'utf8').trim();
     } catch (err) {
-        res.status(500).json({ error: "Data Sync Failed" });
+        return null;
     }
-});
+}
 
-// 🔍 ENGAGEMENT LOGS: Records discovery events from the frontend
-app.post('/api/discovery', (req, res) => {
-    const { merchant, points, user } = req.body;
-    const timestamp = new Date().toISOString();
-    const logEntry = `[${timestamp}] DISCOVERY_EVENT: User '${user}' opened '${merchant}'. Score: ${points}`;
-    console.log(logEntry);
+function writeToLedger(tag, message) {
+    const timestamp = new Date().toLocaleString();
+    const entry = `\n${timestamp} - [${tag}] ${message}`;
+    fs.appendFile(logFile, entry, (err) => {
+        if (err) console.error('![ERROR] Ledger write failure.');
+    });
+}
 
-    // Persistent Storage: Append to log file on J: Drive
-    fs.appendFileSync(path.join(__dirname, 'bazaar_transactions.log'), logEntry + '\n');
-    res.json({ status: "Logged" });
-});
+function checkBridge() {
+    const key = getValidationKey();
+    
+    // SECURITY GATE: Check if the Pioneer Validation Key exists
+    if (!key) {
+        writeToLedger('UNAUTHORIZED', 'Pioneer Validation Key MISSING. Heartbeat Blocked.');
+        console.log('![CRITICAL] Validation Key not found. Pulse inhibited.');
+        return;
+    }
 
-// 🚀 START SERVER
-app.listen(PORT, '0.0.0.0', () => {
-    console.clear();
-    console.log("🏛️  PROJECT BAZAAR: MASTER NODE UPDATED");
-    console.log(`🔗 Local Bridge: http://localhost:${PORT}`);
-    console.log(`📂 Registry: Genesis_100.csv Linked`);
-    console.log("📡 Status: Awaiting S23 Connection...");
-    console.log("📍 ACTUAL ROOT FOLDER:", __dirname);
-    fs.writeFileSync(path.join(__dirname, 'FORCE_TEST.txt'), 'J-Drive-Search');
-});
+    http.get(BRIDGE_URL, (res) => {
+        if (res.statusCode === 200) {
+            // Heartbeat pulsed only if Key is present
+            writeToLedger('SYSTEM', `Heartbeat Pulse - NODE: HYBRID-CORE-ACTIVE (KEY: ${key.substring(0, 5)}...)`);
+            console.log('[OK] Bridge Verified & Pioneer Key Validated.');
+        } else {
+            writeToLedger('WARNING', 'Bridge Handshake unstable.');
+        }
+    }).on('error', (err) => {
+        writeToLedger('UNAUTHORIZED', 'MESH Bridge Offline or Interrupted');
+        console.log('![ALERT] Bridge failure detected.');
+    });
+}
+
+// Initial Scan and pulse every 5 minutes
+checkBridge();
+setInterval(checkBridge, 300000);
+
+console.log('Security Adjudicator: v2.5 ONLINE [Identity Validation Active]');

@@ -1,11 +1,29 @@
 {
+  "name": "project-bazaar",
+  "version": "19.6.0",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "start": "concurrently \"node server.js\" \"ngrok http 3000\""
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "autoprefixer": "latest",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "lucide-react": "latest",
+    "next": "latest",
+    "postcss": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "tailwindcss": "latest"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "@types/node": "^25.2.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "5.9.3"
   }
 }
