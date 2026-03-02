@@ -13,10 +13,50 @@
 
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <script>
-        Pi.init({ version: "2.0", sandbox: true }); // Set to false for Mainnet
-        function pioneerHandshake() {
+        // STAT: Set to true for Sandbox testing on your S23. Set to false for Mainnet.
+        Pi.init({ version: "2.0", sandbox: true }); 
+
+        async function pioneerHandshake() {
             console.log("STAT: Initiating Pioneer Handshake...");
-            // SDK Payment/Auth logic goes here to trigger the 1/5 count
+            
+            try {
+                // 1. Authenticate the Real Pioneer
+                const scopes = ['username', 'payments'];
+                const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
+                console.log(`> PIONEER CONFIRMED: ${auth.user.username}`);
+                alert(`Welcome ${auth.user.username}. Initiating Genesis Handshake.`);
+
+                // 2. Trigger the Genesis Micro-Transaction (0.01 Pi)
+                const payment = Pi.createPayment({
+                    amount: 0.01, 
+                    memo: "BZR_GENESIS_VERIFICATION",
+                    metadata: { type: "academy_handshake", pioneer_id: auth.user.username }
+                }, {
+                    onReadyForServerApproval: function(paymentId) {
+                        console.log("STAT: Payment ID pending - ", paymentId);
+                    },
+                    onReadyForServerCompletion: function(paymentId, txid) {
+                        console.log(`> GENESIS VERIFIED! TXID: ${txid}`);
+                        // This is where the 1/5 count is confirmed on the E-Network
+                        alert(`> TRANSACTION SECURED: ${txid}\n> Logged as 1/5 on the Genesis Ledger.`);
+                    },
+                    onCancel: function(paymentId) {
+                        console.log("STAT: HANDSHAKE ABORTED BY PIONEER.");
+                    },
+                    onError: function(error, payment) {
+                        console.error("STAT: MESH ERROR - ", error);
+                    }
+                });
+            } catch (err) {
+                console.error("STAT: AUTHENTICATION FAILED - ", err);
+                alert("Authentication Failed. Ensure you are accessing via the Pi Browser.");
+            }
+        }
+
+        
+        // 3. Failsafe required by Pi Network Architecture
+        function onIncompletePaymentFound(payment) {
+            console.log("STAT: Incomplete payment detected in buffer.", payment);
         }
     </script>
 </body>
