@@ -7,13 +7,11 @@ import React, {
   useEffect,
   type ReactNode,
 } from "react";
-import { PI_NETWORK_CONFIG, BACKEND_URLS } from "@/lib/system-config";
-import { api, setApiAuthToken } from "@/lib/api";
-import {
+import { PI_NETWORK_CONFIG, BACKEND_URLS } from "../../lib/system-config";
+import { api, setApiAuthToken } from "../../lib/api";import {
   initializeGlobalPayment,
   checkIncompletePayments,
-} from "@/lib/pi-payment";
-
+} from "../../lib/pi-payment";
 export type LoginDTO = {
   id: string;
   username: string;
