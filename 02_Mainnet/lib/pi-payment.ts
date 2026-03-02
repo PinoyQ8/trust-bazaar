@@ -8,8 +8,8 @@
  * - Incomplete payment recovery
  */
 
-import { api } from "@/lib/api";
-import { BACKEND_URLS, PI_BLOCKCHAIN_URLS } from "@/lib/system-config";
+import { api } from "./api";
+import { BACKEND_URLS, PI_BLOCKCHAIN_URLS } from "./system-config";
 
 // ============================================================================
 // Type Definitions
