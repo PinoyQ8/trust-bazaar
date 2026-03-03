@@ -1,0 +1,34 @@
+<body style='background:#0a0a0a; color:#00ff41; font-family:monospace; padding: 20px;'>
+    <h1>[MESH-SCAN] GENESIS (100) LEADERBOARD</h1>
+    <p>> Council of Elders Election Status: ACTIVE</p>
+    <hr style="border: 1px solid #00ff41;">
+    <table id="leaderboardTable" style="width:100%; text-align:left; border-collapse: collapse;">
+        <tr style="border-bottom: 1px solid #00ff41;">
+            <th>RANK</th>
+            <th>PIONEER</th>
+            <th>ROLE</th>
+            <th>TRUST SCORE</th>
+            <th>STATUS</th>
+        </tr>
+    </table>
+
+    <script>
+        async function updateLeaderboard() {
+            const res = await fetch('http://localhost:3002/api/leaderboard');
+            const data = await res.json();
+            const table = document.getElementById('leaderboardTable');
+            // Logic to clear and rebuild rows based on Ledger data
+            data.forEach((p, index) => {
+                let row = `<tr>
+                    <td>#${index + 1}</td>
+                    <td>${p.pioneer || p.uid}</td>
+                    <td>${p.role}</td>
+                    <td>${p.totalTS || p.points} TS</td>
+                    <td>92% UPTIME ✅</td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+        }
+        updateLeaderboard();
+    </script>
+</body>

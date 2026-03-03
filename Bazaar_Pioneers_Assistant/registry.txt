@@ -1,0 +1,11 @@
+--- PROJECT BAZAAR: SOVEREIGN REGISTRY v19.9 ---
+[ESTABLISHED: 2026-03-01 23:27 AST]
+[FOUNDER: PINOYQ8 | IDENTITY: BAZAAR TECH]
+
+01_ACADEMY   -> Public Interface (bulacan.pi)
+02_SCRIPTS   -> Automation & Ngrok Static Bridge
+03_ECONOMIC  -> Treasury (438 Pi) & DEX Liquidity
+04_OPSEC     -> Cloudflare WAF & Security Shields
+05_ARCHIVE   -> Vaulted Legacy Logic (Feb 19 Mirror)
+
+[SYNC STATUS: 100% | UPTIME SHIELD: 92%]

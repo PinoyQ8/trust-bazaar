@@ -1,0 +1,16 @@
+--- PROJECT BAZAAR: MARCH 12 DEX ARCHITECTURE ---
+[TARGET: LIQUIDITY PAIR BZR/PI]
+
+1. INITIAL SUPPLY:
+- Reserve: 138 Pi (The Foundation)
+- Seed: 300 Pi (The Liquidity)
+- Mint: 3,000 BZR (10:1 Ratio)
+
+2. SWAP DYNAMICS:
+- Minimum Swap: 0.1 Pi
+- Fee: 0.3% (Recirculated to Node Guardians)
+- Slippage Protection: 1.5% (MESH Guard)
+
+3. UTILITY GATE:
+- Only Pioneers with a "Module 01: Uptime Shield" 
+  completion badge can access the Seed Pool.

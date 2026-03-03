@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bazaar Academy | Real Pioneer Onboarding</title>
+</head>
+<body style='background:#0a0a0a; color:#00ff41; font-family:monospace; padding: 20px;'>
+    <h1>[BAZAAR ACADEMY] REAL PIONEER ONBOARDING</h1>
+    <p>> Domain: Neo Protocol / Project Bazaar DAO</p>
+    <hr style="border: 1px solid #00ff41;">
+
+    <section>
+        <h3>I. CODE OF CONDUCT: THE MESH PHILOSOPHY</h3>
+        <ul>
+            <li><strong>Security First:</strong> Every action must prioritize the integrity of the E-Network.</li>
+            <li><strong>Peer-to-Peer Accountability:</strong> We are a DAO. There is no middleman; only the Founder, Bazaar Tech, and the Pioneers.</li>
+            <li><strong>Hard-Coded Discipline:</strong> Follow the protocol exactly. No garbage logic.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h3>II. TECHNICAL RESPONSIBILITIES</h3>
+        <p>Your primary mission is the maintenance of the <strong>92% Uptime Shield</strong>. Failure to maintain node stability impacts the collective mining rate.</p>
+        <table style="border: 1px solid #00ff41; width: 100%; text-align: left; padding: 10px;">
+            <tr>
+                <th>Objective</th>
+                <th>Target</th>
+                <th>Validation</th>
+            </tr>
+            <tr>
+                <td>Genesis Handshake</td>
+                <td>0.01 π</td>
+                <td>TXID verified in Ledger</td>
+            </tr>
+            <tr>
+                <td>Mining Rate</td>
+                <td>0.60 π/hr</td>
+                <td>Continuous node telemetry</td>
+            </tr>
+            <tr>
+                <td>System Uptime</td>
+                <td>92%+</td>
+                <td>X570 Command Center Audit</td>
+            </tr>
+        </table>
+    </section>
+
+    <section id="genesis-onboarding" style="border: 1px solid #00ff41; padding: 15px; margin-top: 20px;">
+        <h3>III. GENESIS (100) ENROLLMENT</h3>
+        <p>> Total Slots Remaining: [100/100]</p>
+        
+        <form id="handshakeForm">
+            <label>Pioneer Name/ID:</label><br>
+            <input type="text" id="pioneerName" style="background: #000; color: #00ff41; border: 1px solid #00ff41; width: 300px;" required><br><br>
+
+            <label>Validation Key (from validation-key.txt):</label><br>
+            <input type="password" id="validationKey" style="background: #000; color: #00ff41; border: 1px solid #00ff41; width: 300px;" required><br><br>
+
+            <label>Genesis Role Nomination:</label><br>
+            <select id="elderNomination" style="background: #000; color: #00ff41; border: 1px solid #00ff41; width: 300px;">
+                <option value="no">Real Pioneer (Standard Node)</option>
+                <option value="yes">Council of Elders (Governance Candidate)</option>
+            </select><br><br>
+
+            <button type="button" onclick="completeHandshake()" style="background: #00ff41; color: #000; border: none; padding: 10px 20px; font-weight: bold; cursor: pointer;">
+                INITIATE COMPLETE-HANDSHAKE
+            </button>
+        </form>
+
+        <p id="statusDisplay" style="margin-top: 20px; font-weight: bold;">> Status: Awaiting Input...</p>
+    </section>
+
+    <script>
+        async function completeHandshake() {
+            const pioneerName = document.getElementById('pioneerName').value;
+            const validationKey = document.getElementById('validationKey').value;
+            const elderNomination = document.getElementById('elderNomination').value;
+            const statusDisplay = document.getElementById('statusDisplay');
+
+            statusDisplay.innerHTML = "> INITIATING MESH-SCAN...";
+
+            try {
+                const response = await fetch('/api/complete-handshake', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-bazaar-handshake': validationKey // Hard-Coded Validation
+                    },
+                    body: JSON.stringify({ 
+                        pioneer: pioneerName,
+                        role: elderNomination === 'yes' ? 'Elder Candidate' : 'Real Pioneer', //
+                        protocol: "v23-Mainnet-Ready",
+                        uptimeTarget: "92%" //
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusDisplay.innerHTML = `> SYNCED: ${data.mission}`;
+                    statusDisplay.style.color = "#00ff41";
+                } else {
+                    statusDisplay.innerHTML = `> FAILED: ${data.error}`;
+                    statusDisplay.style.color = "#ff0000";
+                }
+            } catch (error) {
+                statusDisplay.innerHTML = "> SYSTEM ERROR: Command Center Offline.";
+                statusDisplay.style.color = "#ff0000";
+            }
+        }
+    </script>
+
+    <footer style="margin-top: 50px; border-top: 1px dashed #00ff41; padding-top: 10px;">
+        <p>&copy; 2026 Project Bazaar DAO | Master Node: X570-Taichi</p>
+        <p>Audit Status: <strong>Verified by Bazaar Tech</strong></p>
+    </footer>
+</body>
+</html>

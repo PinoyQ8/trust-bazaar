@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="pi-app-verification" content="40e9f22132dd07879923c4a857ddc69d93b6afdc8b4a1a08213fa08ab3c97d02b880036ea86437af674706d9df85dd69343cbdc015889b2c0028a16ef89139a6" />
+    <title>BAZAAR :: HYPERCOAG</title>
+    
+    <script src="../logic/bazaar-sdk.js"></script>
+    <script src="../logic/library.js"></script>
+    <script src="../logic/welcome_logic.js" defer></script>
+
+    <style>
+        :root {
+            --mesh-green: #00ff41;
+            --mesh-glow: rgba(0, 255, 65, 0.3);
+            --bg-dark: #0a0a0a;
+            --pillar-bg: rgba(0, 40, 0, 0.2);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--mesh-green);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            text-shadow: 0 0 5px var(--mesh-glow);
+        }
+
+        /* CRT Scanline Effect Fixed */
+        body::before {
+            content: " "; display: block; position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 118, 0.06));
+            z-index: 999; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        }
+
+        .header-section { border-bottom: 1px solid var(--mesh-green); padding-bottom: 15px; margin-bottom: 20px; }
+        
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        
+        .pillar-box { 
+            border: 1px solid var(--mesh-green); 
+            padding: 10px; 
+            background: var(--pillar-bg);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .pillar-box:active { background: var(--mesh-green); color: #000; }
+
+        .ambassador-console {
+            border: 1px dashed var(--mesh-green);
+            padding: 15px;
+            min-height: 100px;
+            margin-top: 20px;
+            background: rgba(0, 20, 0, 0.4);
+        }
+
+        .blink { animation: blinker 1.5s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        button.action-btn {
+            width: 100%; background: var(--mesh-green); color: #000;
+            border: none; padding: 15px; font-weight: bold;
+            text-transform: uppercase; margin-top: 20px; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <h1 onclick="triggerAmbassador('name')">[ PROJECT BAZAAR ]</h1>
+        <div onclick="triggerAmbassador('pioneer')" style="font-size: 0.8rem;">
+            FOUNDER: <span style="color: #fff;">PinoyQ8</span> | STATUS: <span class="blink">ONLINE</span>
+        </div>
+    </div>
+
+    <div class="status-grid">
+        <div class="pillar-box" onclick="triggerAmbassador('enetwork')">
+            <div style="font-size: 0.6rem;">E-NETWORK</div>
+            <div style="font-size: 0.9rem; font-weight: bold;">92% SHIELD</div>
+        </div>
+        <div class="pillar-box" onclick="triggerAmbassador('meshscan')">
+            <div style="font-size: 0.6rem;">MESH-SCAN</div>
+            <div style="font-size: 0.9rem; font-weight: bold;" class="blink">SCANNING...</div>
+        </div>
+        <div class="pillar-box" onclick="triggerAmbassador('council')">
+            <div style="font-size: 0.6rem;">GOVERNANCE</div>
+            <div style="font-size: 0.9rem; font-weight: bold;">COUNCIL</div>
+        </div>
+        <div class="pillar-box" onclick="triggerAmbassador('brand')">
+            <div style="font-size: 0.6rem;">THE BRAND</div>
+            <div style="font-size: 0.9rem; font-weight: bold;">v23 MAINNET</div>
+        </div>
+    </div>
+
+    <div class="ambassador-console">
+        <span style="font-weight: bold; color: #fff;">[AMBASSADOR]:</span>
+        <div id="assistant-output">Awaiting Pioneer input... Select a pillar to initiate MESH-SCAN.</div>
+    </div>
+
+    <button class="action-btn" onclick="triggerAction()">Initiate Pioneer Action</button>
+
+    <script>
+        const ambassadorData = {
+            "name": "Project Bazaar: A Decentralized DAO on the Pi Network. Hard-Coded for resilience.",
+            "pioneer": "Founder PinoyQ8 verified. CDH Lab X570 Workstation Sync in progress.",
+            "enetwork": "E-Network Status: 92% Uptime Shield. All packets siloed via MESH logic.",
+            "meshscan": "MESH-SCAN: Active. Monitoring for logic leaks and unauthorized directory access.",
+            "council": "Council of Elders: Governance layer active. Decisions anchored in ISO 15189 DNA.",
+            "brand": "The Brand: MESH Protocol. Steady evolution through decentralized security."
+        };
+
+        function triggerAmbassador(pillar) {
+            const out = document.getElementById('assistant-output');
+            out.innerHTML = "Processing...";
+            setTimeout(() => {
+                out.innerHTML = ambassadorData[pillar];
+            }, 300);
+        }
+
+        function triggerAction() {
+            const out = document.getElementById('assistant-output');
+            out.innerHTML = "[ACTION]: Searching Merchant Database... Accessing logic/Merchants_List.csv...";
+        }
+    </script>
+</body>
+</html>

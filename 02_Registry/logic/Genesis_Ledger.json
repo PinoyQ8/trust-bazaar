@@ -1,0 +1,58 @@
+// Project Bazaar: X570 Registry Sync Listener v1.0
+// Path: J:\02_Registry\logic\registry-sync.js
+
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const app = express();
+
+app.use(express.json());
+
+// The Hard-Drive Target for Genesis (100) Ledger
+const REGISTRY_FILE = "J:\\02_Registry\\Genesis_Ledger.json"; //
+
+app.post('/02_Registry/sync', (req, res) => {
+    const { uid, points, timestamp, node } = req.body;
+
+    // 1. MESH-SCAN: Validate Payload Integrity
+    if (!uid || points === undefined) {
+        return res.status(400).send("> ERROR: Corrupted Payload Detected.");
+    }
+
+    try {
+        // 2. Access the J: Drive Ledger
+        let ledger = [];
+        if (fs.existsSync(REGISTRY_FILE)) {
+            ledger = JSON.parse(fs.readFileSync(REGISTRY_FILE, 'utf8'));
+        }
+
+        // 3. Update Trust Score for the Real Pioneer
+        const pioneerIndex = ledger.findIndex(p => p.uid === uid);
+        if (pioneerIndex !== -1) {
+            ledger[pioneerIndex].totalTS += points;
+            ledger[pioneerIndex].lastSync = timestamp;
+            ledger[pioneerIndex].verifiedNode = node;
+        } else {
+            // New Entry for Genesis (100) Phase
+            ledger.push({
+                uid: uid,
+                totalTS: points,
+                lastSync: timestamp,
+                verifiedNode: node,
+                status: "Real Pioneer" //
+            });
+        }
+
+        // 4. Hard-Code the Update to Disk
+        fs.writeFileSync(REGISTRY_FILE, JSON.stringify(ledger, null, 4));
+        
+        console.log(`[SYNC SUCCESS] UID: ${uid} | +${points} TS | Registry Updated.`);
+        res.status(200).send("> SYNC SUCCESS: X570 Ledger Updated.");
+
+    } catch (error) {
+        console.error("> CRITICAL ERROR: J: Drive Write Failure.", error);
+        res.status(500).send("> SYSTEM ERROR: Hard Drive Write Protected.");
+    }
+});
+
+app.listen(3001, () => console.log("X570 Registry Listener Active on Port 3001"));
