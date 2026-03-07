@@ -1,21 +1,83 @@
 [
     {
-        "uid": "Genesis-001-Test",
-        "pioneer": "Real_Pioneer_Alpha",
-        "role": "Council of Elders",
-        "points": 100,
-        "server_verified_at": "2026-03-03T20:50:12.420Z",
-        "governance_clearance": "LEVEL_01",
-        "promoted_at": "2026-03-03T21:16:16.540Z"
+        "uid": "Treasury-Genesis-001",
+        "pioneer": "PinoyQ8",
+        "role": "Command Center",
+        "node_pub_key": "GBDNBH6BRLDF4MDE67SWFFYZ3MTOIRBQPPFKJYBT5Q5RVVVZOFCOCVIB",
+        "economic_zone": { "regional_multiplier": 1.0, "fiat_peg": "PHP" },
+        "wallet_balances": { "pi_balance": 218.34, "simulated_bzr": "2183.40" },
+        "status": "SECURED_ON_X570"
     },
     {
-        "uid": "Treasury-Genesis-001",
-        "pioneer": "Bazaar_Founder",
-        "role": "Command Center",
-        "action": "MAINNET_UNLOCK",
-        "treasury_pi": 218.34,
-        "server_verified_at": "2026-03-06T23:00:00.000+03:00",
-        "governance_clearance": "MAXIMUM",
-        "status": "SECURED_ON_X570"
+        "uid": "Pioneer-Alpha-002",
+        "pioneer": "Adora",
+        "role": "Verified Pioneer",
+        "economic_zone": { "regional_multiplier": 0.45, "fiat_peg": "PHP" },
+        "wallet_balances": { "pi_balance": 0.00, "simulated_bzr": "95.45" },
+        "status": "ACTIVE"
+    },
+    {
+        "uid": "Pioneer-Alpha-003",
+        "pioneer": "Lito",
+        "role": "Merchant (Agri)",
+        "economic_zone": { "regional_multiplier": 0.45, "fiat_peg": "PHP" },
+        "wallet_balances": { "pi_balance": 0.00, "simulated_bzr": "500.00" },
+        "status": "ACTIVE"
+    },
+    {
+        "uid": "Pioneer-Alpha-004",
+        "pioneer": "Elena",
+        "role": "Elder (PH Cluster)",
+        "economic_zone": { "regional_multiplier": 0.45, "fiat_peg": "PHP" },
+        "wallet_balances": { "pi_balance": 0.00, "simulated_bzr": "250.00" },
+        "status": "ACTIVE"
+    },
+    {
+        "uid": "Pioneer-Alpha-005",
+        "pioneer": "Juan",
+        "role": "Verified Pioneer",
+        "economic_zone": { "regional_multiplier": 0.45, "fiat_peg": "PHP" },
+        "wallet_balances": { "pi_balance": 0.00, "simulated_bzr": "100.00" },
+        "status": "ACTIVE"
+    },
+    {
+        "uid": "Pioneer-Alpha-006",
+        "pioneer": "Maria",
+        "role": "Verified Pioneer",
+        "economic_zone": { "regional_multiplier": 0.45, "fiat_peg": "PHP" },
+        "wallet_balances": { "pi_balance": 0.00, "simulated_bzr": "100.00" },
+        "status": "ACTIVE"
+    },
+    {
+        "uid": "Pioneer-Alpha-007",
+        "pioneer": "Rico",
+        "role": "Merchant (Tech)",
+        "economic_zone": { "regional_multiplier": 0.45, "fiat_peg": "PHP" },
+        "wallet_balances": { "pi_balance": 0.00, "simulated_bzr": "450.00" },
+        "status": "ACTIVE"
+    },
+    {
+        "uid": "Pioneer-Alpha-008",
+        "pioneer": "Sita",
+        "role": "Logistics Pioneer",
+        "economic_zone": { "regional_multiplier": 0.45, "fiat_peg": "PHP" },
+        "wallet_balances": { "pi_balance": 0.00, "simulated_bzr": "150.00" },
+        "status": "ACTIVE"
+    },
+    {
+        "uid": "Pioneer-Alpha-009",
+        "pioneer": "Ben",
+        "role": "Verified Pioneer",
+        "economic_zone": { "regional_multiplier": 0.45, "fiat_peg": "PHP" },
+        "wallet_balances": { "pi_balance": 0.00, "simulated_bzr": "100.00" },
+        "status": "ACTIVE"
+    },
+    {
+        "uid": "Pioneer-Alpha-010",
+        "pioneer": "Tess",
+        "role": "Community Lead",
+        "economic_zone": { "regional_multiplier": 0.45, "fiat_peg": "PHP" },
+        "wallet_balances": { "pi_balance": 0.00, "simulated_bzr": "200.00" },
+        "status": "ACTIVE"
     }
 ]

@@ -1,37 +1,31 @@
-/* BAZAAR_APP_V1: Next.js v16.1.6 API Route 
-   Logic: Genesis Ledger Persistence (MESH Protocol)
+/* BAZAAR_APP_V1: Vercel Cloud Proxy
+   Logic: Forwarding Handshake to X570 Command Center
 */
 import { NextResponse } from 'next/server';
-import fs from 'fs';
 
-const ledgerPath = 'J:/Project-Bazaar/02_Mainnet/genesis_ledger.json';
+// THE LIVE TUNNEL TO YOUR X570
+const X570_BRIDGE = 'https://hypercoagulable-nondistortingly-valarie.ngrok-free.dev';
 
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { username, txid } = body;
 
-        // Verify physical J:\ Drive access
-        const ledger = JSON.parse(fs.readFileSync(ledgerPath, 'utf8'));
+        // Forward the data to your local Registry on the X570
+        const response = await fetch(`${X570_BRIDGE}/sync-handshake`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
 
-        // Audit check: Prevent double-entry in the 0/5 Genesis Hunt
-        if (!ledger.pioneer_handshakes.find(p => p.username === username)) {
-            ledger.pioneer_handshakes.push({
-                username: username,
-                txid: txid,
-                timestamp: new Date().toISOString(),
-                status: "VERIFIED"
-            });
-
-            fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 4));
-            console.log(`[SYNC SUCCESS] Genesis Pioneer Verified: ${username}`);
-            
-            return NextResponse.json({ status: "SUCCESS" }, { status: 200 });
+        const result = await response.json();
+        
+        if (response.ok) {
+            return NextResponse.json({ status: "SUCCESS", data: result }, { status: 200 });
         } else {
-            return NextResponse.json({ status: "FAIL", message: "Duplicate" }, { status: 400 });
+            return NextResponse.json({ status: "FAIL", message: result.message }, { status: 400 });
         }
     } catch (err) {
-        console.error("[BAZAAR TECH ALERT] Storage Error:", err.message);
-        return NextResponse.json({ error: "MESH Write Failure" }, { status: 500 });
+        console.error("[BAZAAR TECH ALERT] Cloud-to-Local Bridge Failure:", err.message);
+        return NextResponse.json({ error: "X570 Bridge Offline" }, { status: 500 });
     }
 }

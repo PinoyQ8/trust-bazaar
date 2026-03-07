@@ -1,34 +1,79 @@
-<body style='background:#0a0a0a; color:#00ff41; font-family:monospace; padding: 20px;'>
-    <h1>[MESH-SCAN] GENESIS (100) LEADERBOARD</h1>
-    <p>> Council of Elders Election Status: ACTIVE</p>
-    <hr style="border: 1px solid #00ff41;">
-    <table id="leaderboardTable" style="width:100%; text-align:left; border-collapse: collapse;">
-        <tr style="border-bottom: 1px solid #00ff41;">
-            <th>RANK</th>
-            <th>PIONEER</th>
-            <th>ROLE</th>
-            <th>TRUST SCORE</th>
-            <th>STATUS</th>
-        </tr>
-    </table>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazaar DAO | Genesis Leaderboard</title>
+    <style>
+        :root { --bazaar-gold: #FFD700; --bazaar-dark: #1a1a1a; --bazaar-text: #e0e0e0; }
+        body { background: var(--bazaar-dark); color: var(--bazaar-text); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; }
+        .container { padding: 20px; max-width: 900px; margin: auto; }
+        h1 { color: var(--bazaar-gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #252525; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 15px; border-bottom: 1px solid #333; text-align: left; }
+        th { background: var(--bazaar-gold); color: black; text-transform: uppercase; letter-spacing: 1px; }
+        tr:hover { background: #333; transition: 0.3s; }
+        .bzr-val { color: var(--bazaar-gold); font-weight: bold; }
+        .php-val { color: #4CAF50; font-size: 0.85em; }
+        .status-badge { background: #444; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MARCH 7 GENESIS LEADERBOARD</h1>
+        <p>Real-time Registry Sync: <strong>Port 3001</strong> | Shield Status: <strong>98%</strong></p>
+        
+        <table id="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Pioneer</th>
+                    <th>Role</th>
+                    <th>BZR Balance</th>
+                    <th>PHP Value (1:10)</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                </tbody>
+        </table>
+    </div>
 
     <script>
-        async function updateLeaderboard() {
-            const res = await fetch('http://localhost:3002/api/leaderboard');
-            const data = await res.json();
-            const table = document.getElementById('leaderboardTable');
-            // Logic to clear and rebuild rows based on Ledger data
-            data.forEach((p, index) => {
-                let row = `<tr>
-                    <td>#${index + 1}</td>
-                    <td>${p.pioneer || p.uid}</td>
-                    <td>${p.role}</td>
-                    <td>${p.totalTS || p.points} TS</td>
-                    <td>92% UPTIME ✅</td>
-                </tr>`;
-                table.innerHTML += row;
-            });
-        }
-        updateLeaderboard();
+        async function fetchGenesisData() {
+    try {
+        // --- REFINED MESH FETCH ---
+        // We only need the 'get-ledger' route to populate this UI
+        const response = await fetch('http://localhost:3001/get-ledger');
+        
+        if (!response.ok) throw new Error("Registry Offline");
+        
+        const data = await response.json();
+        const tbody = document.getElementById('leaderboard-body');
+        tbody.innerHTML = '';
+
+        // Sort by balance descending (Highest BZR at the top)
+        data.sort((a, b) => parseFloat(b.wallet_balances.simulated_bzr) - parseFloat(a.wallet_balances.simulated_bzr));
+
+        data.forEach((p, index) => {
+            const row = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${p.pioneer}</strong></td>
+                    <td><span class="status-badge">${p.role}</span></td>
+                    <td class="bzr-val">${p.wallet_balances.simulated_bzr} BZR</td>
+                    <td class="php-val">₱${(p.wallet_balances.simulated_bzr * 10).toLocaleString()}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    } catch (err) {
+        console.error("Mesh Sync Failure:", err);
+        document.getElementById('leaderboard-body').innerHTML = 
+            '<tr><td colspan="5" style="text-align:center; color:red;">System Offline: Check Port 3001</td></tr>';
+    }
+}
+        setInterval(fetchGenesisData, 5000); // Auto-refresh every 5 seconds
+        fetchGenesisData();
     </script>
 </body>
+</html>
