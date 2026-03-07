@@ -9,6 +9,7 @@
             --bazaar-gold: #ffcc00;
             --bazaar-bg: #050505;
             --mesh-glow: 0 0 15px rgba(0, 255, 65, 0.3);
+            --bazaar-dim: #003308;
         }
 
         body {
@@ -61,7 +62,6 @@
             border-left: 4px solid var(--bazaar-gold);
         }
 
-        .node-status { color: var(--bazaar-green); }
         .blink { animation: blinker 2s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
     </style>
@@ -110,15 +110,18 @@
         const log = document.getElementById('mainnetLog');
         try {
             const res = await fetch('https://hypercoagulable-nondistortingly-valarie.ngrok-free.dev/genesis-status', {
-    headers: {
-        "ngrok-skip-browser-warning": "69420"
-    }
-});
+                headers: {
+                    "ngrok-skip-browser-warning": "69420"
+                }
+            });
             const data = await res.json();
             document.getElementById('pioneerCount').innerText = data.count + " / 100";
             log.innerHTML += `<br>[SYNC] Ledger verified. ${data.count} pioneers found in vault.`;
+            // Auto-scroll the log
+            log.scrollTop = log.scrollHeight;
         } catch (e) {
             log.innerHTML += `<br>[ERROR] Registry Unreachable. Reconnecting...`;
+            log.scrollTop = log.scrollHeight;
         }
     }
 
@@ -126,7 +129,9 @@
         window.location.href = "../01_Academy/index.html";
     }
 
+    // Refresh every 10 seconds
     setInterval(syncMainnet, 10000);
+    // Initial call
     syncMainnet();
 </script>
 
