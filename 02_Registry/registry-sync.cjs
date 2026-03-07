@@ -148,6 +148,142 @@ app.post('/sync-handshake', (req, res) => {
     }
 });
 
+// --- ROUTE 7: TRUST COMMODITY & 1-STRIKE PURGE ---
+app.post('/update-trust', (req, res) => {
+    const { username, penalty_points, is_strike } = req.body;
+    try {
+        let ledger = JSON.parse(fs.readFileSync(ledgerPath, 'utf8'));
+        const target = ledger.find(p => p.pioneer === username);
+
+        if (target) {
+            // 1. Initialize Trust Data if missing (Backward Compatibility)
+            if (target.trust_score === undefined) target.trust_score = 100;
+            if (!target.status) target.status = "Verified";
+
+            // 2. The Justice Matrix Logic
+            if (is_strike || (target.trust_score - penalty_points) <= 74) {
+                // EXECUTING 1-STRIKE PURGE (Exile Threshold Breached)
+                target.trust_score = 0;
+                target.status = "Exiled";
+                target.wallet_balances.simulated_bzr = "0.00"; // Confiscate Funds to Treasury
+                
+                logTransaction("PURGE_PROTOCOL", username, "1-Strike Exile Executed. Funds Forfeited.", "-ALL");
+                fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 4));
+                
+                console.log(`[JUSTICE] Pioneer ${username} EXILED.`);
+                return res.status(200).json({ status: "EXILED", new_ts: 0 });
+            } else {
+                // APPLYING OPERATIONAL FRICTION (TS Bleed)
+                target.trust_score -= penalty_points;
+                target.status = target.trust_score <= 89 ? "Warning" : "Verified";
+                
+                logTransaction("TRUST_PENALTY", username, `SLA Breach: -${penalty_points} TS`, "0.00");
+                fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 4));
+                
+                console.log(`[JUSTICE] Pioneer ${username} penalized. New TS: ${target.trust_score}`);
+                return res.status(200).json({ status: "UPDATED", new_ts: target.trust_score });
+            }
+        } else {
+            res.status(404).json({ error: "Pioneer Not Found in Registry" });
+        }
+    } catch (err) { 
+        console.error("Justice Engine Error:", err);
+        res.status(500).json({ error: "Justice Matrix Failed" }); 
+    }
+});
+
+// --- ROUTE 8: THE NUCLEAR OPTION (LOCAL FLUSH) ---
+app.post('/admin-flush', (req, res) => {
+    const adminKey = req.headers['x-admin-auth'];
+    
+    // Safety check: Must match your secret key
+    if (adminKey === "YOUR_SECRET_MASTER_KEY") {
+        const logPath = 'J:/Project-Bazaar/02_Registry/Scan_Logs.txt';
+        const ledgerPath = 'J:/Project-Bazaar/02_Registry/Genesis_Ledger.json';
+
+        // Wipe the logs and reset the ledger
+        fs.writeFileSync(logPath, `[SYSTEM] LEDGER FLUSHED - KUWAIT TIME: ${new Date().toLocaleString()}\n`);
+        fs.writeFileSync(ledgerPath, JSON.stringify([], null, 4));
+
+        console.log("!!! ATTENTION: SYSTEM PURGE EXECUTED VIA S23 REMOTE !!!");
+        res.json({ status: "SUCCESS", message: "J: Drive Cleared" });
+    } else {
+        res.status(403).json({ error: "Unauthorized" });
+    }
+});
+
+// --- ROUTE 9: MINT RWA INVENTORY (ADD ASSET) ---
+app.post('/add-inventory', (req, res) => {
+    const { merchant, item_name, price_php } = req.body;
+    try {
+        // Path to your Inventory Vault
+        const inventoryPath = 'J:/Project-Bazaar/02_Registry/Merchant_Inventory.json';
+        
+        // 1. Load existing inventory
+        let inventory = [];
+        if (fs.existsSync(inventoryPath)) {
+            inventory = JSON.parse(fs.readFileSync(inventoryPath, 'utf8'));
+        }
+
+        // 2. Create the New RWA Asset
+        const newItem = {
+            item_id: "BZR-RWA-" + Date.now(), // Unique Timestamp ID
+            merchant: merchant,
+            item_name: item_name,
+            price_php: parseFloat(price_php),
+            price_bzr: (price_php / 10).toFixed(2), // ENFORCING THE HOLY PEG
+            status: "Available",
+            timestamp: new Date().toLocaleString('en-US', { timeZone: 'Asia/Kuwait' })
+        };
+
+        // 3. Save to J: Drive
+        inventory.push(newItem);
+        fs.writeFileSync(inventoryPath, JSON.stringify(inventory, null, 4));
+
+        // 4. Log the Minting in Global History
+        logTransaction("ASSET_MINT", merchant, `Minted: ${item_name}`, "REGISTRY");
+
+        console.log(`[SUCCESS] RWA Minted: ${item_name} for ${merchant}`);
+        res.status(200).json({ status: "SUCCESS" });
+
+    } catch (err) {
+        console.error("Inventory Write Error:", err);
+        res.status(500).json({ error: "Vault Write Failure" });
+    }
+});
+
+// --- ROUTE 10: TOKENOMIC SIMULATION (MINT/BURN) ---
+app.post('/simulate-trade', (req, res) => {
+    const { buyer, merchant, amount_php } = req.body;
+    try {
+        let ledger = JSON.parse(fs.readFileSync(ledgerPath, 'utf8'));
+        const bzr_value = amount_php / 10; // The Holy Peg
+        const tax = bzr_value * 0.10;      // 10% DAO Tax
+        const net_payout = bzr_value - tax;
+
+        // 1. Deduct from Buyer
+        const buyerIdx = ledger.findIndex(p => p.pioneer === buyer);
+        if(ledger[buyerIdx].bzr_balance < bzr_value) return res.status(400).json({error: "Insufficent BZR"});
+        ledger[buyerIdx].bzr_balance -= bzr_value;
+
+        // 2. Pay Merchant (Minus Tax)
+        const merchantIdx = ledger.findIndex(p => p.pioneer === merchant);
+        ledger[merchantIdx].bzr_balance += net_payout;
+
+        // 3. Update J: Drive
+        fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 4));
+        
+        // 4. Log the Economic Event
+        logTransaction("TRADE_SIM", buyer, `Bought RWA from ${merchant} (-${bzr_value} BZR)`, "ECONOMY");
+        
+        res.status(200).json({ 
+            status: "SUCCESS", 
+            tax_collected: tax,
+            merchant_payout: net_payout 
+        });
+    } catch (err) { res.status(500).json({ error: "Economic Engine Failure" }); }
+});
+
 // --- IGNITION ---
 const PORT = 3001;
 app.listen(PORT, '0.0.0.0', () => {

@@ -5,32 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bazaar DAO | Genesis Leaderboard</title>
     <style>
-        :root { --bazaar-gold: #FFD700; --bazaar-dark: #1a1a1a; --bazaar-text: #e0e0e0; }
-        body { background: var(--bazaar-dark); color: var(--bazaar-text); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; }
-        .container { padding: 20px; max-width: 900px; margin: auto; }
+        :root { --bazaar-gold: #FFD700; --bazaar-dark: #1a1a1a; --bazaar-text: #e0e0e0; --mesh-green: #00ff41; --mesh-red: #ff0000; }
+        body { background: var(--bazaar-dark); color: var(--bazaar-text); font-family: 'Courier New', monospace; text-align: center; }
+        .container { padding: 20px; max-width: 1000px; margin: auto; }
         h1 { color: var(--bazaar-gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #252525; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 15px; border-bottom: 1px solid #333; text-align: left; }
-        th { background: var(--bazaar-gold); color: black; text-transform: uppercase; letter-spacing: 1px; }
-        tr:hover { background: #333; transition: 0.3s; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: rgba(0,0,0,0.6); border: 1px solid #333; }
+        th, td { padding: 12px; border-bottom: 1px solid #333; text-align: left; }
+        th { background: #111; color: var(--bazaar-gold); text-transform: uppercase; border-bottom: 2px solid var(--bazaar-gold); }
+        tr:hover { background: #222; }
         .bzr-val { color: var(--bazaar-gold); font-weight: bold; }
         .php-val { color: #4CAF50; font-size: 0.85em; }
-        .status-badge { background: #444; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; }
+        .ts-optimal { color: var(--mesh-green); font-weight: bold; }
+        .ts-warning { color: #ffaa00; font-weight: bold; }
+        .ts-critical { color: var(--mesh-red); font-weight: bold; animation: blinker 1s linear infinite; }
+        .btn-strike { background: var(--mesh-red); color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; font-weight:bold;}
+        .btn-bleed { background: #ffaa00; color: black; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; font-weight:bold;}
+        @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>MARCH 7 GENESIS LEADERBOARD</h1>
-        <p>Real-time Registry Sync: <strong>Port 3001</strong> | Shield Status: <strong>98%</strong></p>
+        <h1>GENESIS LEDGER & JUSTICE MATRIX</h1>
+        <p>Real-time Registry Sync: <strong>ACTIVE</strong> | Shield Status: <strong style="color:var(--mesh-green);">100%</strong></p>
         
         <table id="leaderboard-table">
             <thead>
                 <tr>
                     <th>Rank</th>
                     <th>Pioneer</th>
-                    <th>Role</th>
                     <th>BZR Balance</th>
                     <th>PHP Value (1:10)</th>
+                    <th>Trust Score (TS)</th>
+                    <th>Justice Protocol</th>
                 </tr>
             </thead>
             <tbody id="leaderboard-body">
@@ -39,41 +45,93 @@
     </div>
 
     <script>
+        // THE SOVEREIGN TUNNEL: ALL S23 TRAFFIC MUST GO THROUGH HERE
+        const MESH_API = "https://hypercoagulable-nondistortingly-valarie.ngrok-free.dev";
+
+        // --- UNIFIED FETCH & RENDER FUNCTION ---
         async function fetchGenesisData() {
-    try {
-        // --- REFINED MESH FETCH ---
-        // We only need the 'get-ledger' route to populate this UI
-        const response = await fetch('http://localhost:3001/get-ledger');
-        
-        if (!response.ok) throw new Error("Registry Offline");
-        
-        const data = await response.json();
-        const tbody = document.getElementById('leaderboard-body');
-        tbody.innerHTML = '';
+            try {
+                // Fetching via ngrok (Works globally on the S23)
+                const response = await fetch(`${MESH_API}/get-ledger`);
+                if (!response.ok) throw new Error("Registry Offline");
+                
+                const data = await response.json();
+                const tbody = document.getElementById('leaderboard-body');
+                tbody.innerHTML = '';
 
-        // Sort by balance descending (Highest BZR at the top)
-        data.sort((a, b) => parseFloat(b.wallet_balances.simulated_bzr) - parseFloat(a.wallet_balances.simulated_bzr));
+                // Sort by BZR balance descending
+                data.sort((a, b) => parseFloat(b.wallet_balances?.simulated_bzr || 0) - parseFloat(a.wallet_balances?.simulated_bzr || 0));
 
-        data.forEach((p, index) => {
-            const row = `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td><strong>${p.pioneer}</strong></td>
-                    <td><span class="status-badge">${p.role}</span></td>
-                    <td class="bzr-val">${p.wallet_balances.simulated_bzr} BZR</td>
-                    <td class="php-val">₱${(p.wallet_balances.simulated_bzr * 10).toLocaleString()}</td>
-                </tr>
-            `;
-            tbody.innerHTML += row;
-        });
-    } catch (err) {
-        console.error("Mesh Sync Failure:", err);
-        document.getElementById('leaderboard-body').innerHTML = 
-            '<tr><td colspan="5" style="text-align:center; color:red;">System Offline: Check Port 3001</td></tr>';
-    }
-}
-        setInterval(fetchGenesisData, 5000); // Auto-refresh every 5 seconds
+                data.forEach((p, index) => {
+                    // Logic Gates for Trust Score UI
+                    let bzrBal = p.wallet_balances?.simulated_bzr || "0.00";
+                    let ts = p.trust_score !== undefined ? p.trust_score : 100;
+                    
+                    let tsClass = "ts-optimal";
+                    let tsText = `${ts} / 100`;
+                    
+                    if (p.status === "Exiled" || ts === 0) {
+                        tsClass = "ts-critical";
+                        tsText = "EXILED (0 TS)";
+                    } else if (ts <= 74) {
+                        tsClass = "ts-critical";
+                        tsText = `${ts} (PURGE IMMINENT)`;
+                    } else if (ts <= 89) {
+                        tsClass = "ts-warning";
+                    }
+
+                    const row = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td><strong>${p.pioneer}</strong><br><small style="color:#888;">${p.role || 'Pioneer'}</small></td>
+                            <td class="bzr-val">${bzrBal} BZR</td>
+                            <td class="php-val">₱${(bzrBal * 10).toLocaleString()}</td>
+                            <td class="${tsClass}">${tsText}</td>
+                            <td>
+                                ${p.status !== 'Exiled' ? `
+                                <button class="btn-bleed" onclick="executeJustice('${p.pioneer}', 10, false)">-10 TS</button>
+                                <button class="btn-strike" onclick="executeJustice('${p.pioneer}', 0, true)">1-STRIKE</button>
+                                ` : '<span style="color:red;">FUNDS FORFEITED</span>'}
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } catch (err) {
+                console.error("Mesh Sync Failure:", err);
+                document.getElementById('leaderboard-body').innerHTML = 
+                    '<tr><td colspan="6" style="text-align:center; color:red;">[SHIELD BREACH] Cannot reach X570 Vault via ngrok.</td></tr>';
+            }
+        }
+
+        // --- JUSTICE EXECUTION FUNCTION ---
+        async function executeJustice(targetUsername, penaltyPoints, isStrike) {
+            const actionText = isStrike ? "EXECUTE 1-STRIKE PURGE ON" : `DEDUCT ${penaltyPoints} TS FROM`;
+            if (!confirm(`[ ADJUDICATOR OVERRIDE ]\n\nAre you sure you want to ${actionText} ${targetUsername}?`)) return;
+
+            try {
+                const response = await fetch(`${MESH_API}/update-trust`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: targetUsername, penalty_points: penaltyPoints, is_strike: isStrike })
+                });
+
+                const result = await response.json();
+                
+                if (result.status === "EXILED") alert(`[JUSTICE SERVED] ${targetUsername} exiled. Funds moved to Treasury.`);
+                else if (result.status === "UPDATED") alert(`[PENALTY APPLIED] ${targetUsername} now has ${result.new_ts} TS.`);
+                else alert(`[ERROR] ${result.error}`);
+
+                fetchGenesisData(); // Instantly refresh UI
+            } catch (error) {
+                console.error("Justice Protocol Failed:", error);
+                alert("Justice Protocol Failed. Check X570 Server.");
+            }
+        }
+
+        // Ignition
         fetchGenesisData();
+        setInterval(fetchGenesisData, 5000); // 5-second Auto-Mesh
     </script>
 </body>
 </html>

@@ -109,7 +109,11 @@
     async function syncMainnet() {
         const log = document.getElementById('mainnetLog');
         try {
-            const res = await fetch('http://192.168.8.100:3001/genesis-status');
+            const res = await fetch('https://[PASTE-YOUR-NEW-NGROK-LINK-HERE]/genesis-status', {
+    headers: {
+        "ngrok-skip-browser-warning": "69420"
+    }
+});
             const data = await res.json();
             document.getElementById('pioneerCount').innerText = data.count + " / 100";
             log.innerHTML += `<br>[SYNC] Ledger verified. ${data.count} pioneers found in vault.`;

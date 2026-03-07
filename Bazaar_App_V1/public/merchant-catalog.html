@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazaar DAO | RWA Catalog</title>
+    <style>
+        :root { --bazaar-gold: #FFD700; --bazaar-dark: #0a0a0a; --mesh-green: #00ff41; }
+        body { background: var(--bazaar-dark); color: #e0e0e0; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 0; }
+        
+        /* Navigation Mesh */
+        nav { background: #111; border-bottom: 2px solid var(--bazaar-gold); padding: 10px; display: flex; justify-content: center; gap: 20px; position: sticky; top: 0; z-index: 100; }
+        nav a { color: var(--bazaar-gold); text-decoration: none; font-weight: bold; font-size: 0.8rem; }
+
+        h1 { color: var(--bazaar-gold); text-transform: uppercase; letter-spacing: 2px; margin-top: 20px; }
+        
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .product-card {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid #333;
+            padding: 15px;
+            text-align: left;
+            transition: 0.3s;
+        }
+
+        .product-card:hover { border-color: var(--bazaar-gold); box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); }
+        
+        .item-name { color: var(--bazaar-gold); font-size: 1.2rem; font-weight: bold; margin-bottom: 5px; }
+        .merchant-tag { color: #888; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 15px; }
+        
+        .price-container {
+            border-top: 1px solid #222;
+            margin-top: 15px;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price-bzr { color: var(--mesh-green); font-size: 1.1rem; font-weight: bold; }
+        .price-php { color: #888; font-size: 0.8rem; }
+        
+        .buy-btn {
+            background: var(--mesh-green);
+            color: black;
+            border: none;
+            padding: 8px 15px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="merchant-dashboard.html">[ DASHBOARD ]</a>
+        <a href="merchant-leaderboard.html">[ LEADERBOARD ]</a>
+        <a href="merchant-catalog.html" style="border-bottom: 1px solid;">[ CATALOG ]</a>
+    </nav>
+
+    <h1>GENESIS RWA CATALOG</h1>
+    <p style="font-size: 0.8rem;">Sovereign Inventory Sync: <span id="sync-status" style="color:var(--mesh-green);">ACTIVE</span></p>
+
+    <div id="catalog-list" class="catalog-grid">
+        </div>
+
+    <script>
+        const MESH_API = "https://hypercoagulable-nondistortingly-valarie.ngrok-free.dev";
+
+        async function fetchCatalog() {
+            try {
+                const response = await fetch(`${MESH_API}/get-inventory`);
+                const items = await response.json();
+                const container = document.getElementById('catalog-list');
+                
+                document.getElementById('sync-status').innerText = "ACTIVE";
+                document.getElementById('sync-status').style.color = "var(--mesh-green)";
+
+                if (items.length === 0) {
+                    container.innerHTML = "<h3>[ NO ASSETS CURRENTLY MINTED ]</h3>";
+                    return;
+                }
+
+                container.innerHTML = items.map(item => `
+                    <div class="product-card">
+                        <div class="item-name">${item.item_name}</div>
+                        <div class="merchant-tag">Merchant: ${item.merchant}</div>
+                        <p style="font-size:0.85rem; color:#aaa;">${item.description || 'Verified Real-World Asset'}</p>
+                        
+                        <div class="price-container">
+                            <div>
+                                <span class="price-bzr">${item.price_bzr} BZR</span><br>
+                                <span class="price-php">₱${Number(item.price_php).toLocaleString()} PHP</span>
+                            </div>
+                            <button class="buy-btn" onclick="initiatePurchase('${item.item_id}')">Buy Now</button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error("Catalog Mesh Offline");
+                document.getElementById('sync-status').innerText = "OFFLINE";
+                document.getElementById('sync-status').style.color = "red";
+            }
+        }
+
+        function initiatePurchase(id) {
+            alert("PURCHASE PROTOCOL: In development. Transaction ID: " + id);
+        }
+
+        // Ignition
+        fetchCatalog();
+        setInterval(fetchCatalog, 15000); // 15s refresh
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+[
+  {
+    "item_id": "RWA-001",
+    "merchant": "Adora",
+    "item_name": "Premium Jasmine Rice (25kg)",
+    "description": "Verified RWA - High quality, harvested in Nueva Ecija.",
+    "price_php": 1250,
+    "price_bzr": 125.00,
+    "stock_quantity": 10,
+    "status": "Available",
+    "rwa_verified": true
+  },
+  {
+    "item_id": "RWA-002",
+    "merchant": "PinoyQ8",
+    "item_name": "Sovereign Tech Bundle",
+    "description": "Hardware and software mesh kit.",
+    "price_php": 5000,
+    "price_bzr": 500.00,
+    "stock_quantity": 5,
+    "status": "Available",
+    "rwa_verified": true
+  }
+]

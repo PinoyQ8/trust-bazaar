@@ -1,6 +1,49 @@
 {
-    "project": "Project Bazaar DAO",
-    "version": "v23_Mainnet_Ready",
-    "pioneer_handshakes": [],
-    "last_audit": "2026-03-03T19:00:00Z"
+  "dao_treasury": {
+    "wallet_id": "BAZAAR_GENESIS_VAULT",
+    "total_supply_bzr": 1000000,
+    "circulating_supply": 200,
+    "current_peg_php": 10,
+    "trust_commodity_status": "SECURE"
+  },
+  "merchants": [
+    {
+      "pi_username": "Adora",
+      "role": "Genesis_Merchant",
+      "wallet_balance_bzr": 100,
+      "trust_score": 100,
+      "strikes": 0,
+      "status": "Verified",
+      "last_active": "2026-03-07T14:00:00Z"
+    },
+    {
+      "pi_username": "TestMerchant_Bleed",
+      "role": "Genesis_Merchant",
+      "wallet_balance_bzr": 100,
+      "trust_score": 85,
+      "strikes": 0,
+      "status": "Warning",
+      "last_active": "2026-03-06T10:00:00Z"
+    },
+    {
+      "pi_username": "Rogue_Seller01",
+      "role": "Genesis_Merchant",
+      "wallet_balance_bzr": 0,
+      "trust_score": 0,
+      "strikes": 1,
+      "status": "Exiled",
+      "last_active": "2026-03-01T08:00:00Z"
+    }
+  ],
+  "pioneers": [
+    {
+      "pi_username": "PinoyQ8",
+      "role": "Adjudicator_Founder",
+      "wallet_balance_bzr": 100,
+      "trust_score": 100,
+      "strikes": 0,
+      "status": "Verified",
+      "last_active": "2026-03-07T14:40:00Z"
+    }
+  ]
 }

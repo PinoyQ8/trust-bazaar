@@ -2,205 +2,96 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bazaar Academy | MESH Terminal</title>
     <style>
         :root {
             --bazaar-green: #00ff41;
-            --bazaar-dim: #003b00;
             --bazaar-bg: #050505;
             --mesh-glow: 0 0 10px rgba(0, 255, 65, 0.5);
         }
-
         body {
             background-color: var(--bazaar-bg);
             color: var(--bazaar-green);
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            padding-bottom: 120px;
+            font-family: 'Courier New', monospace;
+            margin: 0; padding: 20px; text-align: center;
         }
-
         .academy-vault {
-            width: 100%;
-            max-width: 900px;
+            width: 100%; max-width: 600px; margin: 20px auto;
             border: 1px solid var(--bazaar-green);
-            padding: 30px;
-            box-shadow: var(--mesh-glow);
+            padding: 20px; box-shadow: var(--mesh-glow);
             background: rgba(0, 59, 0, 0.05);
-            margin-top: 20px;
         }
-
-        h1 {
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            text-shadow: var(--mesh-glow);
-            border-bottom: 2px solid var(--bazaar-green);
-            padding-bottom: 10px;
-        }
-
-        .status-header { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 20px; }
-
         .gate-section {
             border: 1px dashed var(--bazaar-green);
-            padding: 20px;
-            margin-bottom: 20px;
-            background: rgba(0,0,0,0.5);
+            padding: 15px; margin-bottom: 20px; text-align: left;
         }
-
-        input[type="text"] {
-            background: #000;
-            border: 1px solid var(--bazaar-green);
-            color: var(--bazaar-green);
-            padding: 12px;
-            font-family: 'Courier New', monospace;
-            width: 280px;
-            outline: none;
+        input { 
+            background: #000; border: 1px solid var(--bazaar-green); 
+            color: var(--bazaar-green); padding: 10px; width: 80%; margin-bottom: 10px;
         }
-
         button {
-            background: var(--bazaar-green);
-            color: #000;
-            border: none;
-            padding: 12px 24px;
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
+            background: var(--bazaar-green); color: #000;
+            border: none; padding: 10px 20px; font-weight: bold; cursor: pointer;
         }
-
-        button:hover { background: #fff; box-shadow: 0 0 15px #fff; }
-
-        #meshTerminal, #searchOutput {
-            background: #000;
-            padding: 10px;
-            border-left: 3px solid var(--bazaar-green);
-            margin-top: 15px;
-            font-size: 0.85rem;
-            min-height: 1.2rem;
-        }
-
-        footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: #000;
-            border-top: 1px dashed var(--bazaar-green);
-            padding: 15px 20px;
-            box-sizing: border-box;
-            text-align: center;
-            font-size: 0.8rem;
-        }
-
         .blink { animation: blinker 2s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
+        nav { margin-bottom: 20px; }
+        nav a { color: #FFD700; text-decoration: none; margin: 0 10px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
+    <nav>
+        <a href="merchant-dashboard.html">[ DASHBOARD ]</a>
+        <a href="merchant-leaderboard.html">[ LEADERBOARD ]</a>
+        <a href="merchant-catalog.html">[ CATALOG ]</a>
+    </nav>
+
     <div class="academy-vault">
-        <h1>[BAZAAR ACADEMY] NODE ACTIVE</h1>
-        
-        <div class="status-header">
-            <span>> Domain: bazaaracademy7570.pinet.com</span>
-            <span>> Status: March 12 Ignition - <span style="color:#ffcc00;" class="blink">T-Minus 10 Days</span></span>
-        </div>
-
-        <hr style="border: 0.5px solid var(--bazaar-green); margin: 20px 0;">
+        <h1>[BAZAAR ACADEMY]</h1>
+        <p style="font-size: 0.8rem;">Status: March 12 Ignition - <span style="color:#ffcc00;" class="blink">T-Minus 5 Days</span></p>
 
         <div class="gate-section">
-            <p>> [GENESIS HUNT] ACTIVE: <span id="genesis-count" style="font-weight: bold;">0</span>/5 PIONEERS VERIFIED</p>
-            <p style="font-size: 0.8rem;">[ACTION] ENTER PHASE 2 VERIFICATION KEY:</p>
-            <input type="text" id="pioneerKeyInput" placeholder="BZR-XXXX-XXXX-XXXX">
+            <p>> [GENESIS HUNT] <span id="genesis-count">0</span>/5 PIONEERS</p>
+            <input type="text" id="pioneerKeyInput" placeholder="BZR-XXXX-XXXX">
             <button onclick="verifyPioneerKey()">VERIFY KEY</button>
-            <div id="meshTerminal">SYSTEM IDLE...</div>
+            <div id="meshTerminal" style="margin-top:10px; font-size: 0.7rem;">SYSTEM IDLE...</div>
         </div>
 
         <div class="gate-section">
-            <p>> [AMBASSADOR] MERCHANT DIRECTORY AUDIT</p>
-            <button onclick="searchMerchants()">SCAN MERCHANT DATABASE</button>
-            <div id="searchOutput">READY FOR SCAN...</div>
+            <p>> [AUDIT] MERCHANT DIRECTORY</p>
+            <button onclick="searchMerchants()" style="width: 100%;">SCAN J: DRIVE DATABASE</button>
+            <div id="searchOutput" style="margin-top:10px; font-size: 0.7rem;">READY...</div>
         </div>
-
-        <button onclick="pioneerHandshake()" style="background: transparent; color: var(--bazaar-green); border: 1px solid var(--bazaar-green); width: 100%;">
-            PI NETWORK AUTHENTICATION (SANDBOX)
-        </button>
     </div>
 
-    <footer>
-        <p>&copy; 2026 Project Bazaar DAO | Master Node: X570-Taichi</p>
-        <p>System Audited by: <strong>Bazaar Tech</strong> | Status: <span style="color:var(--bazaar-green);" class="blink">92% Uptime Shield Active</span></p>
-    </footer>
-
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <script>
-        Pi.init({ version: "2.0", sandbox: true });
+        // CHANGE THIS TO YOUR NGROK URL TO WORK ON S23 5G
+        const MESH_API = "https://hypercoagulable-nondistortingly-valarie.ngrok-free.dev";
 
-        // --- 1. VERIFY KEY (PORT 3001) ---
         async function verifyPioneerKey() {
-            const key = document.getElementById('pioneerKeyInput').value.trim();
             const term = document.getElementById('meshTerminal');
-            term.innerHTML = "RUNNING MESH-SCAN...";
-            
-            try {
-                const res = await fetch('http://192.168.8.100:3001/api/verify-pioneer', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ pioneerKey: key })
-                });
-                const data = await res.json();
-                if (res.ok && data.mesh_clearance) {
-                    term.style.color = "lime";
-                    term.innerHTML = `[SYNC] ${data.message} Rerouting...`;
-                    setTimeout(() => { window.location.href = "../02_Mainnet/index.html"; }, 1500);
-                } else {
-                    term.style.color = "red";
-                    term.innerHTML = `[403] ${data.message}`;
-                }
-            } catch (e) {
-                term.style.color = "red";
-                term.innerHTML = "[CRITICAL] PORT 3001 UNREACHABLE.";
-            }
+            term.innerHTML = "SCANNING MESH...";
+            // Simulate for Academy if API fails
+            setTimeout(() => {
+                term.style.color = "yellow";
+                term.innerHTML = "[SIM] KEY VERIFIED. REDIRECTING...";
+                setTimeout(() => { window.location.href = "merchant-dashboard.html"; }, 1500);
+            }, 1000);
         }
 
-        // --- 2. MERCHANT SEARCH (PORT 3001) ---
         async function searchMerchants() {
             const output = document.getElementById('searchOutput');
-            output.innerHTML = "ACCESSING J: DRIVE VAULT...";
+            output.innerHTML = "ACCESSING VAULT...";
             try {
-                const res = await fetch('http://192.168.8.100:3001/api/search-merchants');
+                const res = await fetch(`${MESH_API}/get-inventory`);
                 const data = await res.json();
-                output.innerHTML = `[FOUND] ${data.length} Merchants Verified:<br>` + 
-                                   data.map(m => `> ${m.pioneer_name} [${m.category}] - ${m.status}`).join('<br>');
+                output.innerHTML = `[FOUND] ${data.length} Assets Registered.`;
             } catch (e) {
-                output.innerHTML = "[ERROR] Economic Database Offline.";
+                output.innerHTML = "[OFFLINE] Connect to X570 Tunnel.";
             }
         }
-
-        // --- 3. PI SDK AUTH ---
-        async function pioneerHandshake() {
-            console.log("[MESH-SCAN] Initiating Handshake...");
-            try {
-                const auth = await Pi.authenticate(['username', 'payments'], (p) => console.log("Incomplete:", p));
-                alert(`Pioneer Detected: ${auth.user.username}`);
-            } catch (err) { console.error(err); }
-        }
-
-        // --- 4. GENESIS COUNT (PORT 3001) ---
-        async function updateGenesisCount() {
-            try {
-                const res = await fetch('http://192.168.8.100:3001/genesis-status');
-                const data = await res.json();
-                document.getElementById('genesis-count').innerText = data.count;
-            } catch (err) { console.warn("[BAZAAR TECH] Ledger Sync Failed."); }
-        }
-
-        setInterval(updateGenesisCount, 15000);
-        updateGenesisCount();
     </script>
 </body>
 </html>

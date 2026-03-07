@@ -1,0 +1,139 @@
+<style>
+    .ts-module {
+        border: 1px solid var(--mesh-green);
+        background: rgba(0, 20, 0, 0.4);
+        padding: 15px;
+        margin-top: 20px;
+        font-family: 'Courier New', monospace;
+    }
+    .ts-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: #fff;
+    }
+    .ts-bar-bg {
+        width: 100%;
+        height: 20px;
+        background: #111;
+        border: 1px solid #333;
+        position: relative;
+        overflow: hidden;
+    }
+    .ts-bar-fill {
+        height: 100%;
+        width: 100%; /* Starts at 100% */
+        transition: width 0.5s ease-in-out, background-color 0.5s;
+    }
+    /* Dynamic Trust States */
+    .ts-optimal { background-color: #00ff41; box-shadow: 0 0 10px #00ff41; }
+    .ts-warning { background-color: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+    .ts-critical { background-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
+    
+    .ts-msg {
+        margin-top: 10px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+    }
+    .blink-red { color: #ff0000; animation: blinker 1s linear infinite; font-weight: bold;}
+</style>
+
+<div class="ts-module">
+    <div class="ts-header">
+        <span>[ COMMODITY: TRUST ]</span>
+        <span id="ts-score-display">100 / 100 TS</span>
+    </div>
+    <div class="ts-bar-bg">
+        <div id="ts-bar" class="ts-bar-fill ts-optimal"></div>
+    </div>
+    <div id="ts-status-msg" class="ts-msg" style="color: var(--mesh-green);">
+        STATUS: PERFECT. SOVEREIGN PEG SECURED.
+    </div>
+</div>
+
+<div style="margin-top:10px; display:flex; gap:5px;">
+    <button onclick="updateTS(-10)" style="background:#ffaa00; border:none; padding:5px; cursor:pointer;">Simulate: Late Ship (-10)</button>
+    <button onclick="updateTS(1)" style="background:#00ff41; border:none; padding:5px; cursor:pointer;">Simulate: Flawless Tx (+1)</button>
+    <button onclick="triggerPurge()" style="background:#ff0000; color:#fff; border:none; padding:5px; cursor:pointer;">Simulate: RWA Fraud (1-Strike)</button>
+</div>
+
+<div class="ts-module" style="border-color: #00ff41;">
+    <div class="ts-header"><span>[ SIMULATION: TOKENOMIC STRESS TEST ]</span></div>
+    <button onclick="runTradeSim()" style="width:100%; background:#00ff41; color:#000; font-weight:bold; padding:12px; border:none; cursor:pointer;">
+        EXECUTE 5,000 PHP RWA PURCHASE
+    </button>
+</div>
+
+<script>
+    async function runTradeSim() {
+        if(!confirm("Execute 500 BZR Simulation Trade?")) return;
+        
+        try {
+            const response = await fetch(`${MESH_API}/simulate-trade`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    buyer: "Pioneer_01", // Guest Buyer
+                    merchant: MY_USERNAME, 
+                    amount_php: 5000
+                })
+            });
+            const result = await response.json();
+            if(result.status === "SUCCESS") {
+                alert(`TRADE SUCCESSFUL!\nTax to DAO: ${result.tax_collected} BZR\nPayout: ${result.merchant_payout} BZR`);
+                syncBazaarData(); // Refresh Health Bar & History
+            }
+        } catch (err) { alert("Sim Engine Offline"); }
+    }
+</script>
+
+<script>
+    let currentTS = 100;
+    const EXILE_THRESHOLD = 74;
+
+    function updateTS(change) {
+        if (currentTS <= EXILE_THRESHOLD && change < 0) return; // Already exiled
+        
+        currentTS += change;
+        if (currentTS > 100) currentTS = 100;
+        
+        renderTS();
+    }
+
+    function triggerPurge() {
+        currentTS = 0;
+        renderTS();
+        document.getElementById('ts-status-msg').innerHTML = "[ 1-STRIKE PROTOCOL EXECUTED: ACCOUNT EXILED. FUNDS FORFEITED. ]";
+        document.getElementById('ts-status-msg').className = "ts-msg blink-red";
+    }
+
+    function renderTS() {
+        const bar = document.getElementById('ts-bar');
+        const display = document.getElementById('ts-score-display');
+        const msg = document.getElementById('ts-status-msg');
+
+        // Update UI Width
+        bar.style.width = currentTS + '%';
+        display.innerText = currentTS + ' / 100 TS';
+
+        // Update Logic Gates
+        if (currentTS === 0) {
+            // Handled by Purge
+        } else if (currentTS <= EXILE_THRESHOLD) {
+            bar.className = "ts-bar-fill ts-critical";
+            msg.innerHTML = "CRITICAL: EXILE THRESHOLD BREACHED. AWAITING COUNCIL REVIEW.";
+            msg.className = "ts-msg blink-red";
+        } else if (currentTS <= 89) {
+            bar.className = "ts-bar-fill ts-warning";
+            msg.innerHTML = "WARNING: OPERATIONAL FRICTION DETECTED. COMPLETE FLAWLESS TX TO RECOVER.";
+            msg.style.color = "#ffaa00";
+            msg.classList.remove('blink-red');
+        } else {
+            bar.className = "ts-bar-fill ts-optimal";
+            msg.innerHTML = "STATUS: OPTIMAL. SOVEREIGN PEG SECURED.";
+            msg.style.color = "#00ff41";
+            msg.classList.remove('blink-red');
+        }
+    }
+</script>
