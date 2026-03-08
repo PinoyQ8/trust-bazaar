@@ -109,8 +109,9 @@
     async function syncMainnet() {
     const log = document.getElementById('mainnetLog');
     try {
-        // REPLACE THE URL BELOW WITH YOUR ACTUAL NGROK LINK FROM THE TERMINAL
-        const res = await fetch('git push', {
+        // EXACT FIX: Replace the placeholder below with your real ngrok link!
+        // It should look something like: https://1234-abcd.ngrok-free.app/api/pioneers
+        const res = await fetch('https://hypercoagulable-nondistortingly-valarie.ngrok-free.dev/api/pioneers', {
             headers: {
                 "ngrok-skip-browser-warning": "69420"
             }
