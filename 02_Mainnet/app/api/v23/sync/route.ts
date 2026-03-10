@@ -13,8 +13,23 @@ export async function OPTIONS() {
   });
 }
 
-// 2. THE UNIFIED HEARTBEAT (The 200 Pulse)
-export async function GET() {
+// 2. THE UNIFIED GATEWAY (Verification + Heartbeat)
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const isVerification = request.url.includes('validation-key.txt');
+
+  // MESH-SCAN: Detect if the Pi Crawler or Verification check is hitting this route
+  if (isVerification) {
+    return new NextResponse('47dec09c399ad2c76d2', {
+      status: 200,
+      headers: { 
+        'Content-Type': 'text/plain',
+        'Access-Control-Allow-Origin': '*' 
+      },
+    });
+  }
+
+  // STANDARD HEARTBEAT: The 200 Pulse for E-Network
   try {
     return NextResponse.json(
       { 
