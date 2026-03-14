@@ -1,6 +1,0 @@
-{
-  "framework": null,
-  "installCommand": "echo 'BAZAAR SHIELD: Install bypassed'",
-  "buildCommand": "echo 'BAZAAR SHIELD: Build bypassed'",
-  "outputDirectory": "."
-}
