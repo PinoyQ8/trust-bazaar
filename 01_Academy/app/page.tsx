@@ -1,43 +1,29 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-export default function Phase10Strike() {
+export default function BazaarAcademyTerminal() {
   const [sdkReady, setSdkReady] = useState(false);
   const [isStriking, setIsStriking] = useState(false);
 
   useEffect(() => {
-    const checkSDK = () => {
-      const piSDK = (window as any).Pi;
-      if (piSDK) {
-        piSDK.init({ version: '2.0', sandbox: true });
-        console.log('[MESH] Academy SDK Initialized.');
-        setSdkReady(true);
-      } else {
-        // Retry logic if script defer is slow
-        setTimeout(checkSDK, 500);
-      }
-    };
-    checkSDK();
+    const piSDK = (window as any).Pi;
+    if (piSDK) {
+      piSDK.init({ version: '2.0', sandbox: true });
+      setSdkReady(true);
+    }
   }, []);
 
-  const triggerHandshake = async () => {
+  const triggerStep10 = async () => {
     const piSDK = (window as any).Pi;
-
-    if (!piSDK || !sdkReady) {
-      alert('ADJUDICATOR ALERT: SDK Offline.');
-      return;
-    }
-
+    if (!piSDK || !sdkReady) return;
     setIsStriking(true);
 
     try {
-      const auth = await piSDK.authenticate(['payments'], async (payment: any) => {
-        console.log('[MESH] Incomplete payment found.');
-      });
-
+      await piSDK.authenticate(['payments'], async (payment: any) => {});
+      
       piSDK.createPayment({
         amount: 1,
-        memo: 'Phase 10: Alpha-Consort Handshake',
+        memo: 'BZR-ACADEMY: Phase 10 Handshake',
         metadata: { step: 10 }
       }, {
         onReadyForServerApproval: async (paymentId: string) => { 
@@ -54,43 +40,38 @@ export default function Phase10Strike() {
             body: JSON.stringify({ action: 'complete', paymentId, txid })
           });
           setIsStriking(false);
-          alert('SUCCESS: Phase 10 Complete! TXID: ' + txid);
+          alert('SUCCESS: Handshake Confirmed. TXID: ' + txid);
         },
         onCancel: () => setIsStriking(false),
-        onError: (error: any) => {
-          setIsStriking(false);
-          alert('SDK Error: ' + error.message);
-        }
+        onError: (error: any) => { setIsStriking(false); alert(error.message); }
       });
-
-    } catch (err: any) {
-      setIsStriking(false);
-      alert('Critical Execution Failure: ' + err.message);
-    }
+    } catch (err: any) { setIsStriking(false); }
   };
 
   return (
-    <div style={{ backgroundColor: 'black', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-      <h1 style={{ color: 'white', fontFamily: 'monospace', marginBottom: '40px' }}>BZR-ACADEMY: PHASE 10</h1>
-      <button 
-        onClick={triggerHandshake} 
-        disabled={!sdkReady || isStriking}
-        style={{ 
-            backgroundColor: sdkReady ? '#FFD700' : '#555', 
-            color: 'black', 
-            padding: '25px 50px', 
-            fontSize: '24px', 
-            fontWeight: '900', 
-            border: 'none', 
-            borderRadius: '5px', 
-            cursor: sdkReady ? 'pointer' : 'not-allowed', 
-            fontFamily: 'monospace', 
-            boxShadow: sdkReady ? '0 0 15px #FFD700' : 'none' 
-        }}
-      >
-        {isStriking ? 'TRANSMITTING...' : (sdkReady ? 'EXECUTE STEP #10' : 'LOADING SDK...')}
-      </button>
-      {/* HEARTBEAT: [March 14 // 17:28 AST] - Hypercoag Clear. */}
+    <div style={{ backgroundColor: '#050505', color: '#00ff41', fontFamily: 'monospace', minHeight: '100vh', padding: '20px' }}>
+      <div style={{ border: '1px solid #00ff41', maxWidth: '600px', margin: '40px auto', padding: '20px', boxShadow: '0 0 10px rgba(0, 255, 65, 0.5)' }}>
+        <h1 style={{ textAlign: 'center' }}>[BAZAAR ACADEMY]</h1>
+        <p style={{ textAlign: 'center', fontSize: '0.8rem' }}>Status: <span style={{ color: '#FFD700' }}>ONLINE // VERCEL NODE</span></p>
+        
+        <div style={{ border: '1px dashed #00ff41', padding: '15px', marginTop: '20px' }}>
+          <p> [GENESIS STRIKE] PHASE 10</p>
+          <button 
+            onClick={triggerStep10}
+            disabled={!sdkReady || isStriking}
+            style={{ 
+              width: '100%', backgroundColor: '#00ff41', color: '#000', 
+              padding: '15px', fontWeight: 'bold', border: 'none', cursor: 'pointer' 
+            }}
+          >
+            {isStriking ? 'TRANSMITTING...' : (sdkReady ? 'EXECUTE STEP #10' : 'LOADING SDK...')}
+          </button>
+        </div>
+
+        <div style={{ marginTop: '20px', fontSize: '0.7rem', color: '#555' }}>
+          // HEARTBEAT: [March 14 // 17:50 AST] - ngrok de-linked.
+        </div>
+      </div>
     </div>
   );
 }
