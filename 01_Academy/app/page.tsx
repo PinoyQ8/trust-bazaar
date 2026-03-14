@@ -3,16 +3,18 @@ import { useEffect, useState } from 'react';
 
 export default function Phase10Strike() {
   const [sdkReady, setSdkReady] = useState(false);
+  const [isStriking, setIsStriking] = useState(false);
 
   useEffect(() => {
-    // Sovereign DOM Injection
     const script = document.createElement('script');
     script.src = "https://sdk.minepi.com/pi-sdk.js";
     script.async = true;
     script.onload = () => {
-      if (window.Pi) {
-        window.Pi.init({ version: '2.0', sandbox: true });
-        console.log('[MESH] SDK Bone-Structure Hard-Coded.');
+      // Local Casting to bypass global type conflicts
+      const piSDK = (window as any).Pi;
+      if (piSDK) {
+        piSDK.init({ version: '2.0', sandbox: true });
+        console.log('[MESH] Academy SDK Initialized.');
         setSdkReady(true);
       }
     };
@@ -20,53 +22,53 @@ export default function Phase10Strike() {
   }, []);
 
   const triggerHandshake = async () => {
-    if (!sdkReady || !window.Pi) {
+    // 1. DYNAMIC CASTING: Bypasses the "Subsequent property" error
+    const piSDK = (window as any).Pi;
+
+    if (typeof window === "undefined" || !piSDK || !sdkReady) {
       alert('ADJUDICATOR ALERT: SDK Offline.');
       return;
     }
 
-    try {
-      console.log('[MESH] Requesting Payment Scope Auth...');
-      
-      // THE AUTH-KEY: Type-Safe Promise returned
-      const auth = await window.Pi.authenticate(['payments'], async (payment) => {
-        console.log('[MESH] Incomplete payment found:', payment);
-        return Promise.resolve(); 
-      });
-      console.log('[MESH] Auth secured for UID:', auth.user.uid);
+    setIsStriking(true);
 
-      console.log('[STRIKE INITIATED] Firing Payload to Testnet...');
-      
-      // THE STRIKE: Unified Route Protocol
-      window.Pi.createPayment({
+    try {
+      const auth = await piSDK.authenticate(['payments'], async (payment: any) => {
+        console.log('[MESH] Incomplete payment found.');
+      });
+
+      console.log(`[MESH] Authenticated: ${auth.user.username}`);
+
+      piSDK.createPayment({
         amount: 1,
         memo: 'Phase 10: Alpha-Consort Handshake',
         metadata: { step: 10 }
       }, {
-        onReadyForServerApproval: async (paymentId) => { 
-          console.log('[MESH] Pulse ID Received:', paymentId);
-          // ROUTE TO UNIFIED GATEWAY (ACTION: APPROVE)
+        onReadyForServerApproval: async (paymentId: string) => { 
           await fetch('/api/complete-handshake', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'approve', paymentId })
           });
         },
-        onReadyForServerCompletion: async (paymentId, txid) => { 
-          console.log(`[MESH] Locking TXID: ${txid}`);
-          // ROUTE TO UNIFIED GATEWAY (ACTION: COMPLETE)
+        onReadyForServerCompletion: async (paymentId: string, txid: string) => { 
           await fetch('/api/complete-handshake', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'complete', paymentId, txid })
           });
-          alert('SUCCESS: 1 Test Pi confirmed. Phase 10 Complete! TXID: ' + txid);
+          setIsStriking(false);
+          alert('SUCCESS: Phase 10 Complete! TXID: ' + txid);
         },
-        onCancel: (paymentId) => { console.log('[MESH] Strike Cancelled.'); },
-        onError: (error, payment) => { alert('SDK Error: ' + error.message); }
+        onCancel: () => setIsStriking(false),
+        onError: (error: any) => {
+          setIsStriking(false);
+          alert('SDK Error: ' + error.message);
+        }
       });
 
-    } catch (err) {
+    } catch (err: any) {
+      setIsStriking(false);
       alert('Critical Execution Failure: ' + err.message);
     }
   };
@@ -76,9 +78,21 @@ export default function Phase10Strike() {
       <h1 style={{ color: 'white', fontFamily: 'monospace', marginBottom: '40px' }}>BZR-ACADEMY: PHASE 10</h1>
       <button 
         onClick={triggerHandshake} 
-        style={{ backgroundColor: sdkReady ? '#FFD700' : '#555', color: 'black', padding: '25px 50px', fontSize: '24px', fontWeight: '900', border: 'none', borderRadius: '5px', cursor: sdkReady ? 'pointer' : 'not-allowed', fontFamily: 'monospace', boxShadow: sdkReady ? '0 0 15px #FFD700' : 'none' }}
+        disabled={!sdkReady || isStriking}
+        style={{ 
+            backgroundColor: sdkReady ? '#FFD700' : '#555', 
+            color: 'black', 
+            padding: '25px 50px', 
+            fontSize: '24px', 
+            fontWeight: '900', 
+            border: 'none', 
+            borderRadius: '5px', 
+            cursor: sdkReady ? 'pointer' : 'not-allowed', 
+            fontFamily: 'monospace', 
+            boxShadow: sdkReady ? '0 0 15px #FFD700' : 'none' 
+        }}
       >
-        {sdkReady ? 'EXECUTE STEP #10' : 'LOADING SDK...'}
+        {isStriking ? 'TRANSMITTING...' : (sdkReady ? 'EXECUTE STEP #10' : 'LOADING SDK...')}
       </button>
     </div>
   );
